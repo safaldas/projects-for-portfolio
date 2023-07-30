@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  email String @unique
+  hash  String
+  name  String
+
+  projects Project[] // Define the many-to-many relation with projects
+
+  @@map("Users")
+}
+
+model Project {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name        String
+  description String
+
+  tasks      Task[] // Define the one-to-many relation with tasks
+  users      User[] // Define the many-to-many relation with users
+  categories Category[] // Define the many-to-many relation with categories
+  tags       Tag[] // Define the many-to-many relation with tags
+
+  @@map("Projects")
+}
+
+model Task {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name        String
+  description String @default("")
+  status      String @default("")
+  projectId   Int // Foreign key to relate tasks to the project they belong to
+
+  project Project @relation(fields: [projectId], references: [id]) // Define the relation back to the Project model
+
+  @@map("Tasks")
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  projects Project[] // Define the many-to-many relation with projects
+}
+
+model Tag {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  projects Project[] // Define the many-to-many relation with projects
+}
