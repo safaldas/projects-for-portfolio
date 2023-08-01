@@ -32,6 +32,7 @@ $ yarn run start
 $ yarn run start:dev
 
 # production mode
+$ yarn run build
 $ yarn run start:prod
 ```
 
