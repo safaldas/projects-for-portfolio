@@ -10,6 +10,7 @@ import RedisStore from 'connect-redis';
 import passport from 'passport';
 import session from 'express-session';
 import { RedisClientType } from 'redis';
+import { CategoryModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -22,9 +23,10 @@ import { RedisClientType } from 'redis';
     RedisModule,
     ProjectsModule,
     TagsModule,
+    CategoryModule,
   ],
+  exports: [],
   controllers: [],
-  providers: [],
 })
 export class AppModule {
   constructor(@Inject(REDIS) private readonly redis: RedisClientType) {}
@@ -40,7 +42,7 @@ export class AppModule {
           cookie: {
             sameSite: true,
             httpOnly: false,
-            maxAge: 60000,
+            maxAge: 160000,
           },
         }),
         passport.initialize(),

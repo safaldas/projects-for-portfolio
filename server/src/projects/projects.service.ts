@@ -2,10 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { FilterDto, PaginationDto } from 'src/common/dto';
+import { PaginationService } from '../common/services/pagination.service';
+import { Project } from '@prisma/client';
 
 @Injectable()
 export class ProjectsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private paginationService: PaginationService<Project>,
+  ) {}
 
   async create(createProjectDto: CreateProjectDto) {
     try {
@@ -46,8 +52,8 @@ export class ProjectsService {
     }
   }
 
-  findAll() {
-    return `This action returns all projects`;
+  findAll(paginationDto: PaginationDto, filterDto: FilterDto) {
+    return this.paginationService.findAll('project', paginationDto, filterDto);
   }
 
   findOne(id: number) {

@@ -6,11 +6,16 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { FilterDto, PaginationDto } from '../common/dto';
+import { AuthenticatedGuard } from '../auth/guards';
 
+@UseGuards(AuthenticatedGuard)
 @Controller('projects')
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
@@ -21,8 +26,11 @@ export class ProjectsController {
   }
 
   @Get()
-  findAll() {
-    return this.projectsService.findAll();
+  findAll(
+    @Query() paginationDto: PaginationDto,
+    @Query() filterDto: FilterDto,
+  ) {
+    return this.projectsService.findAll(paginationDto, filterDto);
   }
 
   @Get(':id')

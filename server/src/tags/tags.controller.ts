@@ -7,11 +7,15 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { TagsService } from './tags.service';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
 import { AuthenticatedGuard } from '../auth/guards';
+import { FilterDto, GetByIdDto, PaginationDto } from '../common/dto';
 
 @UseGuards(AuthenticatedGuard)
 @Controller('tags')
@@ -24,12 +28,15 @@ export class TagsController {
   }
 
   @Get()
-  findAll() {
-    return this.tagsService.findAll();
+  findAll(
+    @Query() paginationDto: PaginationDto,
+    @Query() filterDto: FilterDto,
+  ) {
+    return this.tagsService.findAll(paginationDto, filterDto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: GetByIdDto) {
     return this.tagsService.findOne(+id);
   }
 
@@ -38,6 +45,7 @@ export class TagsController {
     return this.tagsService.update(+id, updateTagDto);
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.tagsService.remove(+id);

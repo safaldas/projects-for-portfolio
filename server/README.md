@@ -14,12 +14,12 @@ setup docker
 ## Installation
 
 ```bash
-$ yarn install
+$ npm run  install
 ```
 
 ## Running the app
 
-make a copy of .env.test as .env and
+make a copy of `.env.test` as `.env`` and
 
 ```bash
 #
@@ -48,4 +48,10 @@ $ yarn run test:e2e
 $ yarn run test:cov
 ```
 
-Things in future
+# TODO
+
+pagination service to support partial search, sorting, addition fields for newer models
+
+createdby and updatedby is needed
+
+find a way to run tests with session. maybe e2e is the way.

@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsArray } from 'class-validator';
+import { IsString, IsNotEmpty, IsArray, IsOptional } from 'class-validator';
 
 export class CreateProjectDto {
   @IsString()
@@ -10,7 +10,8 @@ export class CreateProjectDto {
   description: string;
 
   @IsArray()
-  tasks: string[]; // An array of task strings (strings)
+  @IsOptional()
+  tasks?: string[]; // An array of task strings (strings)
 
   @IsArray()
   users: number[]; // An array of user IDs (numbers)
