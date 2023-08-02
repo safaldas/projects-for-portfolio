@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { HttpStatus, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { PrismaClientExceptionFilter } from './prisma/prisma-client-exception.filter';
+import session from 'express-session';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -11,7 +12,18 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
-
+  app.use(
+    session({
+      saveUninitialized: false,
+      secret: 'sup3rs3cr3tkjnkjnkjnkjnljn98098u09n',
+      resave: false,
+      cookie: {
+        sameSite: true,
+        httpOnly: false,
+        maxAge: 160000,
+      },
+    }),
+  );
   const config = new DocumentBuilder()
     .setTitle('Project portfolio')
     .setDescription('Api docs')

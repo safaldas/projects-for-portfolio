@@ -1,47 +1,39 @@
-
+version: "3.8"
 services:
-  api:
-    build:
-      dockerfile: Dockerfile
-      context: .
-      target: build
-    env_file:
-      - .env
-    volumes:
-      - myapp:/usr/src/app
-      - myapp:/usr/src/app/node_modules
-    # command: npm run start:prod
-    ports:
-      - 3333:3333
-    depends_on:
-      - dev-db
-      - dev-redis
   dev-db:
     image: postgres:13
+    hostname: postgres
     ports:
-      - 5434:5432
+      - 5432:5432
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123
       POSTGRES_DB: projects-portfolio
-    # networks:
-      # - projectsportfolio
+    networks:
+      - projectsportfolio
     volumes:
       - docker-nest-postgres:/var/lib/postgresql/data
-  dev-redis:
-    image: redis:7-alpine
-    container_name: projectsportfolio-dev-redis
-    hostname: projectsportfolio-dev-redis
+  api:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: production
+    # env_file:
+    #   - .env
     environment:
-      - REDIS_PASSWORD=password
-    # networks:
-      # - projectsportfolio
-    command: /bin/sh -c 'redis-server --appendonly yes --requirepass $${REDIS_PASSWORD}'
-    restart: always
+      DATABASE_URL: postgres://postgres:123@localhost:5432/projects-portfolio?schema=public
     volumes:
-      - redis:/data
+      - myapp:/usr/src/app
+      - myapp:/usr/src/app/node_modules
     ports:
-      - 6379:6379
+      - 3333:3333
+    networks:
+      - projectsportfolio
+    # restart: on-failure
+    links:
+      - dev-db
+    depends_on:
+      - dev-db
   api-test:
     build:
       dockerfile: Dockerfile
@@ -57,7 +49,6 @@ services:
       - 3333:3333
     depends_on:
       - test-db
-      - test-redis
   test-db:
     image: postgres:13
     ports:
@@ -66,28 +57,13 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123
       POSTGRES_DB: projects-portfolio
-    # networks:
-    #   - projectsportfolio
+    networks:
+      - projectsportfolio
     volumes:
       - docker-nest-postgres:/var/lib/postgresql/data
-  test-redis:
-    image: redis:7-alpine
-    container_name: projectsportfolio-test-redis
-    hostname: projectsportfolio-test-redis
-    environment:
-      - REDIS_PASSWORD=password
-    # networks:
-    #   - projectsportfolio
-    command: /bin/sh -c 'redis-server --appendonly yes --requirepass $${REDIS_PASSWORD}'
-    restart: always
-    volumes:
-      - redis:/data
-    ports:
-      - 6380:6379
-# networks:
-      # projectsportfolio:
+networks:
+      projectsportfolio:
+        driver: bridge
 volumes:
   myapp:
   docker-nest-postgres:
-  redis:
-    driver: local
