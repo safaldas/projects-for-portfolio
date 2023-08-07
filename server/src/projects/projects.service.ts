@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -15,33 +15,46 @@ export class ProjectsService {
 
   async create(createProjectDto: CreateProjectDto) {
     try {
-      // Create the project with tasks
+      const projectData: any = {
+        name: createProjectDto.name,
+        description: createProjectDto.description,
+      };
+
+      if (createProjectDto.tasks) {
+        projectData.tasks = {
+          create: createProjectDto.tasks.map((taskName) => ({
+            name: taskName,
+          })),
+        };
+      }
+
+      if (createProjectDto.users) {
+        projectData.users = {
+          connect: createProjectDto.users.map((userId) => ({ id: userId })),
+        };
+      }
+
+      if (createProjectDto.categories) {
+        projectData.categories = {
+          connect: createProjectDto.categories.map((categoryId) => ({
+            id: categoryId,
+          })),
+        };
+      }
+
+      if (createProjectDto.tags) {
+        projectData.tags = {
+          connect: createProjectDto.tags.map((tagId) => ({ id: tagId })),
+        };
+      }
+
       const project = await this.prisma.project.create({
-        data: {
-          name: createProjectDto.name,
-          description: createProjectDto.description,
-          tasks: {
-            create: createProjectDto.tasks.map((taskName) => ({
-              name: taskName,
-            })),
-          },
-          users: {
-            connect: createProjectDto.users.map((userId) => ({ id: userId })), // Connect the users to the project
-          },
-          categories: {
-            connect: createProjectDto.categories.map((categoryId) => ({
-              id: categoryId,
-            })), // Connect the categories to the project
-          },
-          tags: {
-            connect: createProjectDto.tags.map((tagId) => ({ id: tagId })), // Connect the tags to the project
-          },
-        },
+        data: projectData,
         include: {
-          tasks: true, // Optionally include the tasks in the result
-          users: true, // Optionally include the users in the result
-          categories: true, // Optionally include the categories in the result
-          tags: true, // Optionally include the tags in the result
+          tasks: true,
+          users: true,
+          categories: true,
+          tags: true,
         },
       });
 
@@ -53,18 +66,66 @@ export class ProjectsService {
   }
 
   findAll(paginationDto: PaginationDto, filterDto: FilterDto) {
-    return this.paginationService.findAll('project', paginationDto, filterDto);
+    const include = {
+      tasks: true,
+      users: true,
+      categories: true,
+      tags: true,
+    };
+    return this.paginationService.findAll(
+      'project',
+      paginationDto,
+      filterDto,
+      include,
+    );
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} project`;
+  async findOne(id: number) {
+    const project = await this.prisma.project.findUnique({
+      where: { id },
+      include: {
+        tasks: true,
+        users: true,
+        categories: true,
+        tags: true,
+      },
+    });
+    if (project) {
+      return project;
+    } else {
+      throw new NotFoundException();
+    }
   }
 
-  update(id: number, updateProjectDto: UpdateProjectDto) {
-    return `This action updates a #${id} project`;
+  async update(id: number, updateProjectDto: UpdateProjectDto) {
+    // Map tasks property to Prisma's format
+    function generateConnectionIds(modelName) {
+      const updates = {
+        set:
+          updateProjectDto[modelName]?.map((itemId) => ({ id: itemId })) || [],
+      };
+      return updates;
+    }
+
+    const updateData = {
+      name: updateProjectDto.name,
+      description: updateProjectDto.description,
+      tasks: generateConnectionIds('tasks'),
+      users: generateConnectionIds('users'),
+      tags: generateConnectionIds('tags'),
+      categories: generateConnectionIds('categories'),
+    };
+    const item = await this.prisma.project.update({
+      where: { id },
+      data: updateData,
+    });
+    if (item) return item;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} project`;
+  async remove(id: number) {
+    const item = await this.prisma.project.delete({
+      where: { id },
+    });
+    return item;
   }
 }

@@ -4,30 +4,36 @@ import { HttpStatus, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { PrismaClientExceptionFilter } from './prisma/prisma-client-exception.filter';
 import session from 'express-session';
+import { RefreshSessionMiddleware } from './common/middlewares';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
+      transform: true,
     }),
   );
   app.use(
     session({
       saveUninitialized: false,
       secret: 'sup3rs3cr3tkjnkjnkjnkjnljn98098u09n',
-      resave: false,
+      resave: true,
       cookie: {
-        sameSite: true,
+        secure: false,
         httpOnly: false,
-        maxAge: 160000,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
       },
     }),
   );
+  app.use(new RefreshSessionMiddleware().use);
+
   const config = new DocumentBuilder()
     .setTitle('Project portfolio')
     .setDescription('Api docs')
     .setVersion('1.0')
+    .addCookieAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

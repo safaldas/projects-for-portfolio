@@ -22,8 +22,11 @@ $ npm run  install
 make a copy of `.env.test` as `.env`` and
 
 ```bash
-#
+# for db setup and rebuild
 yarn run db:dev:restart
+
+# for db start
+yarn run db:dev:up
 
 # development
 $ yarn run start

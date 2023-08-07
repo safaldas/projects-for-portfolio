@@ -23,7 +23,7 @@ export class CategoryService {
       return category;
     } catch (error) {
       console.log({ error });
-      return new UnprocessableEntityException();
+      return new UnprocessableEntityException(error);
     }
   }
 
@@ -35,7 +35,7 @@ export class CategoryService {
     const category = await this.prisma.category.findUnique({ where: { id } });
     if (category) return category;
     else {
-      return new NotFoundException();
+      throw new NotFoundException();
     }
   }
 

@@ -7,6 +7,8 @@ import { ProjectsModule } from './projects/projects.module';
 import { TagsModule } from './tags/tags.module';
 import passport from 'passport';
 import { CategoryModule } from './categories/categories.module';
+import { AppController } from './app.controller';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [
@@ -19,9 +21,10 @@ import { CategoryModule } from './categories/categories.module';
     ProjectsModule,
     TagsModule,
     CategoryModule,
+    TasksModule,
   ],
   exports: [],
-  controllers: [],
+  controllers: [AppController],
 })
 export class AppModule implements NestModule {
   // constructor() {}

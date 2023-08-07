@@ -12,10 +12,10 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { CategoryService } from './categories.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
+import { CreateCategoryDto, UpdateCategoryDto } from './dto';
 import { AuthenticatedGuard } from '../auth/guards';
 import { FilterDto, GetByIdDto, PaginationDto } from '../common/dto';
+import { GetIdFromParams } from '../common/decorators';
 
 @UseGuards(AuthenticatedGuard)
 @Controller('category')
@@ -36,13 +36,13 @@ export class CategoryController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: GetByIdDto) {
+  findOne(@GetIdFromParams('id') id: GetByIdDto) {
     return this.categoriesService.findOne(+id);
   }
 
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @GetIdFromParams('id') id: GetByIdDto,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
     return this.categoriesService.update(+id, updateCategoryDto);
@@ -50,7 +50,7 @@ export class CategoryController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@GetIdFromParams('id') id: GetByIdDto) {
     return this.categoriesService.remove(+id);
   }
 }

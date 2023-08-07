@@ -11,14 +11,16 @@ export class CreateProjectDto {
 
   @IsArray()
   @IsOptional()
-  tasks?: string[]; // An array of task strings (strings)
+  tasks?: number[]; // An array of task strings (strings)
 
+  @IsOptional()
   @IsArray()
   users: number[]; // An array of user IDs (numbers)
 
   @IsArray()
   categories: number[]; // An array of category IDs (numbers)
 
+  @IsOptional()
   @IsArray()
   tags: number[]; // An array of tag IDs (numbers)
 }

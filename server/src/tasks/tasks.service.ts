@@ -3,24 +3,24 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { CreateTagDto } from './dto/create-tag.dto';
-import { UpdateTagDto } from './dto/update-tag.dto';
+import { CreateDto } from './dto/create.dto';
+import { UpdateDto } from './dto/update.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaginationService } from '../common/services/pagination.service';
-import { Tag } from '@prisma/client';
+import { Task } from '@prisma/client';
 import { FilterDto, PaginationDto } from '../common/dto';
 
 @Injectable()
-export class TagsService {
+export class TasksService {
   constructor(
     private prisma: PrismaService,
-    private paginationService: PaginationService<Tag>,
+    private paginationService: PaginationService<Task>,
   ) {}
 
-  create(createTagDto: CreateTagDto) {
+  create(createTaskDto: CreateDto) {
     try {
-      const tag = this.prisma.tag.create({ data: createTagDto });
-      return tag;
+      const task = this.prisma.task.create({ data: createTaskDto });
+      return task;
     } catch (error) {
       console.log({ error });
       return new UnprocessableEntityException();
@@ -28,29 +28,29 @@ export class TagsService {
   }
 
   findAll(paginationDto: PaginationDto, filterDto?: FilterDto) {
-    return this.paginationService.findAll('tag', paginationDto, filterDto);
+    return this.paginationService.findAll('task', paginationDto, filterDto);
   }
 
   async findOne(id: number) {
-    const tag = await this.prisma.tag.findUnique({ where: { id } });
-    if (tag) return tag;
+    const task = await this.prisma.task.findUnique({ where: { id } });
+    if (task) return task;
     else {
       throw new NotFoundException();
     }
   }
 
-  async update(id: number, updateTagDto: UpdateTagDto) {
-    const tag = await this.prisma.tag.update({
+  async update(id: number, updateDto: UpdateDto) {
+    const task = await this.prisma.task.update({
       where: { id },
-      data: updateTagDto,
+      data: updateDto,
     });
-    if (tag) return tag;
+    if (task) return task;
   }
 
   async remove(id: number) {
-    const tag = await this.prisma.tag.delete({
+    const task = await this.prisma.task.delete({
       where: { id },
     });
-    return tag;
+    return task;
   }
 }

@@ -4,7 +4,7 @@ services:
     image: postgres:13
     hostname: postgres
     ports:
-      - 5432:5432
+      - 5433:5432
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123
@@ -52,7 +52,7 @@ services:
   test-db:
     image: postgres:13
     ports:
-      - 5435:5432
+      - 5434:5432
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123

@@ -1,8 +1,10 @@
 import { Type } from 'class-transformer';
-import { IsNotEmpty } from 'class-validator';
+import { IsDefined, IsNumberString } from 'class-validator';
 
 export class GetByIdDto {
-  @IsNotEmpty()
+  // @IsNotEmpty()
+  @IsDefined()
+  @IsNumberString()
   @Type(() => Number)
   id: number;
 }

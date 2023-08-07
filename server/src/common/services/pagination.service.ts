@@ -5,17 +5,21 @@ import { PaginationDto, FilterDto } from '../dto';
 @Injectable()
 export class PaginationService<T> {
   constructor(private prisma: PrismaService) {}
-
   async findAll(
     model: string,
     paginationDto: PaginationDto,
     filterDto?: FilterDto,
-    include?: any,
-  ) {
+    include?: any, // Use Prisma types for includes
+  ): Promise<{
+    data: T[];
+    meta: { page: number; limit: number; totalItems: number };
+  }> {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
 
-    const where = filterDto ? this.buildWhereFilter(filterDto) : {};
+    const where = filterDto
+      ? await this.buildWhereFilter(filterDto, model)
+      : {};
 
     const data = await this.prisma[model].findMany({
       skip,
@@ -36,25 +40,53 @@ export class PaginationService<T> {
     };
   }
 
-  private buildWhereFilter(filterDto: FilterDto) {
+  private async buildWhereFilter(filterDto: FilterDto, model: string) {
     // Build the where object based on the properties in the FilterDto
     const where: any = {};
 
     if (filterDto.name) {
-      where.name = { contains: filterDto.name };
+      where.name = { equals: filterDto.name };
     }
     if (filterDto.category) {
-      where.category = { equals: filterDto.category };
+      where.categories = { some: { id: filterDto.category } };
     }
     if (filterDto.tag) {
-      where.tag = { equals: filterDto.tag };
+      where.tags = { some: { id: filterDto.tag } };
     }
-    // TODO: from here
     if (filterDto.q) {
-      // where.name = { contains: filterDto.name };
+      const orConditions = []; // Initialize an array to hold OR conditions
+
+      orConditions.push({ name: { contains: filterDto.q } });
+
+      const exists = await this.checkPropertyExists(model, 'description');
+      if (exists) {
+        orConditions.push({ description: { contains: filterDto.q } });
+      }
+
+      // Add more conditions here if needed
+
+      // Add the OR conditions to the where object if there are any
+      if (orConditions.length > 0) {
+        where.OR = orConditions;
+      }
     }
-    // Add other filtering properties as needed
+
+    // Add more filter queries here
+    if (filterDto.status) {
+      where.status = { equals: filterDto.status };
+    }
+    // console.log(JSON.stringify(where, null, 2));
 
     return where;
+  }
+  async checkPropertyExists(model: string, property: string): Promise<boolean> {
+    try {
+      const modelSchema = this.prisma[model].fields;
+
+      return property in modelSchema;
+    } catch (error) {
+      // Handle errors (e.g., model does not exist)
+      return false;
+    }
   }
 }

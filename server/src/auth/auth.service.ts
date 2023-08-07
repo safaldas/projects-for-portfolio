@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
-import { AuthDto } from './dto';
+import { SigninDto, SignupDto } from './dto';
 import * as argon from 'argon2';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
@@ -13,7 +13,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 export class AuthService {
   constructor(private prisma: PrismaService) {}
 
-  async signup(dto: AuthDto) {
+  async signup(dto: SignupDto) {
     try {
       // generate pass
       const hash = await argon.hash(dto.password);
@@ -32,7 +32,7 @@ export class AuthService {
     }
   }
 
-  async signin(dto: AuthDto) {
+  async signin(dto: SigninDto) {
     // find user by email
     const user = await this.prisma.user.findUnique({
       where: {

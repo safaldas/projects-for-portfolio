@@ -11,21 +11,21 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { TagsService } from './tags.service';
-import { CreateTagDto } from './dto/create-tag.dto';
-import { UpdateTagDto } from './dto/update-tag.dto';
+import { TasksService } from './tasks.service';
+import { CreateDto } from './dto/create.dto';
+import { UpdateDto } from './dto/update.dto';
 import { AuthenticatedGuard } from '../auth/guards';
 import { FilterDto, GetByIdDto, PaginationDto } from '../common/dto';
 import { GetIdFromParams } from '../common/decorators';
 
 @UseGuards(AuthenticatedGuard)
-@Controller('tags')
-export class TagsController {
-  constructor(private readonly tagsService: TagsService) {}
+@Controller('tasks')
+export class TasksController {
+  constructor(private readonly tasksService: TasksService) {}
 
   @Post()
-  create(@Body() createTagDto: CreateTagDto) {
-    return this.tagsService.create(createTagDto);
+  create(@Body() createTaskDto: CreateDto) {
+    return this.tasksService.create(createTaskDto);
   }
 
   @Get()
@@ -33,7 +33,7 @@ export class TagsController {
     @Query() paginationDto: PaginationDto,
     @Query() filterDto: FilterDto,
   ) {
-    return this.tagsService.findAll(paginationDto, filterDto);
+    return this.tasksService.findAll(paginationDto, filterDto);
   }
 
   @Get(':id')
@@ -41,21 +41,21 @@ export class TagsController {
     @GetIdFromParams('id')
     id: GetByIdDto,
   ) {
-    return this.tagsService.findOne(+id);
+    return this.tasksService.findOne(+id);
   }
 
   @Patch(':id')
   update(
     @GetIdFromParams('id')
     id: GetByIdDto,
-    @Body() updateTagDto: UpdateTagDto,
+    @Body() updateTaskDto: UpdateDto,
   ) {
-    return this.tagsService.update(+id, updateTagDto);
+    return this.tasksService.update(+id, updateTaskDto);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.tagsService.remove(+id);
+    return this.tasksService.remove(+id);
   }
 }
