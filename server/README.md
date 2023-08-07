@@ -9,7 +9,7 @@ prisma
 
 ## Prerequisites
 
-setup docker
+setup docker and start it
 
 ## Installation
 
@@ -24,15 +24,15 @@ make a copy of `.env.test` as `.env`` and
 ```bash
 # for db setup and rebuild
 yarn run db:dev:restart
+yarn run db:test:restart # for e2e development
 
 # for db start
 yarn run db:dev:up
 
 # development
-$ yarn run start
-
-# watch mode
 $ yarn run start:dev
+
+http://localhost:3333
 
 # production mode
 $ yarn run build
@@ -46,16 +46,14 @@ $ yarn run start:prod
 $ yarn run test
 
 # e2e tests
-$ yarn run test:e2e
+$ yarn run test:e2e:watch
 
-# test coverage
-$ yarn run test:cov
 ```
+
+## Swagger Docs
+
+the api documentation is in http://localhost:3333/api
 
 # TODO
 
-pagination service to support partial search, sorting, addition fields for newer models
-
 createdby and updatedby is needed
-
-find a way to run tests with session. maybe e2e is the way.
