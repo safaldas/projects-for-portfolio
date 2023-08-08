@@ -27,7 +27,6 @@ import { TasksModule } from './tasks/tasks.module';
   controllers: [AppController],
 })
 export class AppModule implements NestModule {
-  // constructor() {}
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(passport.initialize(), passport.session()).forRoutes('*'); // Apply passport middleware to all routes
   }
