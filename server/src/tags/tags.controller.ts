@@ -12,8 +12,6 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { TagsService } from './tags.service';
-import { CreateTagDto } from './dto/create-tag.dto';
-import { UpdateTagDto } from './dto/update-tag.dto';
 import { AuthenticatedGuard } from '../auth/guards';
 import { FilterDto, GetByIdDto, PaginationDto } from '../common/dto';
 import { GetIdFromParams } from '../common/decorators';
@@ -25,6 +23,7 @@ import {
   ApiQuery,
   ApiBody,
 } from '@nestjs/swagger';
+import { CreateTagDto, TagDto, UpdateTagDto } from './dto';
 
 @UseGuards(AuthenticatedGuard)
 @ApiTags('Tags') // Set the API tag for this controller
@@ -59,8 +58,9 @@ export class TagsController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Successfully retrieved the tag',
+    type: TagDto,
   })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Tag not found' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Not found' })
   @Get(':id')
   findOne(
     @GetIdFromParams('id')
@@ -75,6 +75,7 @@ export class TagsController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Tag updated successfully',
+    type: TagDto,
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Tag not found' })
   @Patch(':id')
@@ -91,6 +92,7 @@ export class TagsController {
   @ApiResponse({
     status: HttpStatus.NO_CONTENT,
     description: 'Tag deleted successfully',
+    type: TagDto,
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Tag not found' })
   @HttpCode(HttpStatus.NO_CONTENT)
