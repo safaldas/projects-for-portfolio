@@ -18,6 +18,8 @@ import {
   ApiCreatedResponse,
   ApiBody,
 } from '@nestjs/swagger';
+import { User } from '@prisma/client';
+import { UserDto } from '../common/dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -26,6 +28,7 @@ export class AuthController {
 
   @ApiCreatedResponse({
     description: 'User registered successfully',
+    type: UserDto,
   })
   @ApiBody({
     type: SignupDto,
@@ -40,8 +43,9 @@ export class AuthController {
       },
     },
   })
+  // /auth/signup
   @Post('signup')
-  async signup(@Body() dto: SignupDto) {
+  async signup(@Body() dto: SignupDto): Promise<UserDto> {
     const user = await this.authService.signup(dto);
     return user;
   }
@@ -49,6 +53,7 @@ export class AuthController {
   // /auth/signin
   @ApiOkResponse({
     description: 'User logged in successfully',
+    type: UserDto,
   })
   @ApiBody({
     type: SigninDto,
@@ -65,7 +70,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
   @Post('signin')
-  async signin(@Req() req, @Body() dto: SigninDto) {
+  async signin(@Req() req, @Body() dto: SigninDto): Promise<UserDto> {
     const user = await this.authService.signin(dto);
     req.session.user = user;
     return user;
