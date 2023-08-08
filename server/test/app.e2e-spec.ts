@@ -96,6 +96,13 @@ describe('AppController (e2e)', () => {
           })
           .expectStatus(400);
       });
+      it('should throw exception if password empty', () => {
+        return pactum
+          .spec()
+          .post('/auth/signup')
+          .withBody({})
+          .expectStatus(400);
+      });
       it('should signup', () => {
         return pactum
           .spec()
