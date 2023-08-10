@@ -6,13 +6,21 @@ import { PrismaClientExceptionFilter } from './prisma/prisma-client-exception.fi
 import session from 'express-session';
 import { RefreshSessionMiddleware } from './common/middlewares';
 import checkDatabaseConnection from './checkDbConnection';
+import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 
 async function bootstrap() {
   const isDatabaseConnected = await checkDatabaseConnection();
   const logger = new Logger('App: main');
   if (isDatabaseConnected) {
     const app = await NestFactory.create(AppModule);
-    app.enableCors();
+
+    const corsOptions: CorsOptions = {
+      origin: 'http://localhost:5173', // Replace with your frontend's URL
+      credentials: true, // Enable cookies
+    };
+
+    // app.enableCors();
+    app.enableCors(corsOptions);
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
@@ -21,7 +29,6 @@ async function bootstrap() {
     );
     app.use(
       session({
-        saveUninitialized: false,
         secret: 'sup3rs3cr3tkjnkjnkjnkjnljn98098u09n',
         resave: true,
         cookie: {
