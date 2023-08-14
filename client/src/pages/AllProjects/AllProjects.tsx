@@ -30,11 +30,6 @@ const AllProjects = () => {
     },
   });
 
-  useEffect(() => {
-    // handleProjectApi?.data
-    console.log(dataContent, "dd")
-    console.log(data, "api")
-  }, [dataContent]);
 
   const arrayElm = (task: React.SetStateAction<undefined>) => {
     setContent(task);

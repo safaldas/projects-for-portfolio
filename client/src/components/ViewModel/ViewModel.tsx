@@ -22,7 +22,7 @@ const AlertDialogDemo = (props) => {
           <AlertDialog.Description className="AlertDialogDescription">{content?.description}</AlertDialog.Description>
           <AlertDialog.Title className="AlertDialogTitle"> TODO Items</AlertDialog.Title>
 
-          <AlertDialog.Description className="AlertDialogDescription">
+          <div className="AlertDialogDescription">
 
             <List
               color="primary"
@@ -35,7 +35,7 @@ const AlertDialogDemo = (props) => {
               inactive
               variant="bordered"
             />
-          </AlertDialog.Description>
+          </div>
           <div style={{ display: 'flex', gap: 25, justifyContent: 'center' }}>
             <AlertDialog.Cancel asChild>
               <button className="Button mauve">Close</button>
