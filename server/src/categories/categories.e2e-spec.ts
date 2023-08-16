@@ -90,6 +90,20 @@ describe('Auth', () => {
         .withCookies('$S{authcookie}')
         .expectStatus(404);
     });
+
+    it('should throw error when pagination page is less than 1', async () => {
+      await pactum
+        .spec()
+        .get('/category')
+        .withCookies('$S{authcookie}')
+        .withQueryParams({
+          page: 0,
+          limit: 10,
+        })
+        .expectStatus(400)
+        .expectJson('message.0', 'page must not be less than 1');
+    });
+
     it('should return a list of category with pagination', async () => {
       await pactum
         .spec()
@@ -132,8 +146,7 @@ describe('Auth', () => {
           page: 1,
           limit: 10,
           totalItems: 1,
-        })
-        .end();
+        });
     });
     it('should return a empty list of category with filter for data not in description or name', async () => {
       pactum
@@ -149,8 +162,7 @@ describe('Auth', () => {
           page: 1,
           limit: 10,
           totalItems: 0,
-        })
-        .end();
+        });
     });
     it('should delete a category', () => {
       return pactum

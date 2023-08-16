@@ -53,6 +53,9 @@ export class PaginationService<T> {
     if (filterDto.tag) {
       where.tags = { some: { id: filterDto.tag } };
     }
+    if (filterDto.user) {
+      where.users = { some: { id: filterDto.user } };
+    }
     if (filterDto.q) {
       const orConditions = []; // Initialize an array to hold OR conditions
 

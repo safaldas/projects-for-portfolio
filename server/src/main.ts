@@ -31,6 +31,7 @@ async function bootstrap() {
       session({
         secret: 'sup3rs3cr3tkjnkjnkjnkjnljn98098u09n',
         resave: true,
+        saveUninitialized: true,
         cookie: {
           secure: false,
           httpOnly: false,

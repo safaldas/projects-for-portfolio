@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 
-export class FilterDto {
+export class TaskFilterDto {
   @ApiProperty({
     required: false,
     description: 'Filter by name',
@@ -29,26 +29,6 @@ export class FilterDto {
 
   @ApiProperty({
     required: false,
-    description: 'Filter by category ID',
-    type: Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  category?: number;
-
-  @ApiProperty({
-    required: false,
-    description: 'Filter by tag ID',
-    type: Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  tag?: number;
-
-  @ApiProperty({
-    required: false,
     description: 'Filter by status',
   })
   @IsOptional()
@@ -63,5 +43,5 @@ export class FilterDto {
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
-  user?: number;
+  projectId?: number;
 }
