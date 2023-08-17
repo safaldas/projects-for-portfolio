@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import * as Form from "@radix-ui/react-form";
 import "./style.css";
 import { colourOptions } from "../../data/dropData";
 import AsyncCreatable from "react-select/async-creatable";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import axiosInstance from "../../util/axios-instance";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -22,47 +22,9 @@ interface AwesomeInputProps {
 const Tags: React.FC<AwesomeInputProps> = React.forwardRef((props, ref) => {
 
     const [page] = useState(1);
-    const [limit] = useState(100);
-    const [tagsClicked, setTagsCLicked] = useState(true);
-    const [tagData, setTagData] = useState()
-    const [options, setOptions] = useState()
+    const [limit] = useState(5);
 
 
-
-    const handleTagsApi = useQuery({
-        queryKey: ["tags"],
-        enabled: tagsClicked,
-        queryFn: async () => {
-            const response = await axiosInstance.get("/tags", {
-                params: {
-                    page: page,
-                    limit: limit,
-                },
-            });
-            const data = await response.data;
-
-            setTagData(data)
-            return data;
-        },
-    });
-
-
-    useEffect(() => {
-        handleTagsApi.dataUpdatedAt
-        const data = handleTagsApi?.data?.data
-        let tagsData = [];
-        for (let i = 0; i < data?.length; i++) { // changed
-            const tags = {}
-            tags.id = data[i].id;
-            tags.label = data[i].name;
-            tags.value = data[i].name;
-            tagsData.push(tags);
-
-        }
-        setOptions(tagsData)
-        // console.log(options, "data")
-
-    }, [tagData])
 
     const createNewTag = async (dataToPost) => {
         const res = await axiosInstance.post("/tags", dataToPost);
@@ -70,14 +32,12 @@ const Tags: React.FC<AwesomeInputProps> = React.forwardRef((props, ref) => {
     };
 
     const {
-        isLoading,
-        error,
         mutate: createTags,
     } = useMutation(createNewTag, {
         onError: (err) => console.log("The error", err),
         onSuccess: (data) => {
             console.log(data);
-            handleTagsApi
+            filterTags("")
         },
     });
     const handleCreateTags = (tag) => {
@@ -85,45 +45,45 @@ const Tags: React.FC<AwesomeInputProps> = React.forwardRef((props, ref) => {
     };
 
     const handleTagsChange = (tags) => {
-        console.log("changes", tags)
 
         props.setTags(tags);
 
     };
 
-    const filterTags = (inputValue: string) => {
-        const data = handleTagsApi?.data?.data
+    const filterTags = async (inputValue: string) => {
+        try {
+            const response = await axiosInstance.get("/tags", {
+                params: {
+                    page: page,
+                    limit: limit,
+                    q: inputValue
+                },
+            })
+            const resData = await response.data;
+            const dataVal = resData?.data
+            const data = dataVal?.map(function (row) {
 
-        let tagsData = [];
-        for (let i = 0; i < data?.length; i++) { // changed
-            const tags = {}
-            tags.id = data[i].id;
-            tags.label = data[i].name;
-            tagsData.push(tags);
-
+                return { id: row.id, label: row.name, value: row.id }
+            })
+            return data;
         }
-        console.log(options, "filter")
-
-        return tagsData?.filter((i) =>
-            i.label.toLowerCase().includes(inputValue.toLowerCase())
-        );
-
+        catch (err) {
+            console.log(err)
+        }
     };
 
     const promiseOptions = (inputValue: string) =>
         new Promise<TagsOption[]>((resolve) => {
-            setTimeout(() => {
-                resolve(filterTags(inputValue));
-            }, 1000);
+            resolve(filterTags(inputValue));
         });
+
 
     return (
         <AsyncCreatable
             cacheOptions
-            defaultOptions={options}
+            defaultOptions
             loadOptions={promiseOptions}
             isMulti
-            options={options}
             onChange={handleTagsChange}
             onCreateOption={handleCreateTags}
         />

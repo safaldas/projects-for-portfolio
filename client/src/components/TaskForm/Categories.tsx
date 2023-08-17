@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./style.css";
 import AsyncCreatable from "react-select/async-creatable";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import axiosInstance from "../../util/axios-instance";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -11,61 +11,23 @@ export interface CategoriesOption {
 }
 
 interface AwesomeInputProps {
+    setCategory(category: any): unknown;
     props?: boolean;
     ref?: React.Ref<Text>;
 }
 
 const Categories: React.FC<AwesomeInputProps> = React.forwardRef((props, ref) => {
     const [page] = useState(1);
-    const [limit] = useState(100);
-    const [categoryData, setCategoryData] = useState()
-    const [options, setOptions] = useState()
-    const [search, setSearch] = useState("");
+    const [limit] = useState(5);
 
-    function handleCategoryChange(category) {
-        console.log("hitt", category)
-        // Here, we invoke the callback with the new value
+    function handleCategoryChange(category: any) {
         props.setCategory(category)
     }
-
-    const handleCategoriesApi = useQuery({
-        queryKey: ["categories", { input: "" }],
-        queryFn: async () => {
-            const response = await axiosInstance.get("/category", {
-                params: {
-                    page: page,
-                    limit: limit,
-                    q: search
-                },
-            });
-            const data = await response.data;
-
-            setCategoryData(data)
-            return data;
-        },
-    });
-
-
-
-    useEffect(() => {
-        console.log(search)
-        handleCategoriesApi.dataUpdatedAt
-        const data = handleCategoriesApi?.data?.data
-        const categoriesData = [];
-        for (let i = 0; i < data?.length; i++) { // changed
-            const categories = {}
-            categories.id = data[i].id;
-            categories.label = data[i].name;
-            categoriesData.push(categories);
-
-        }
-        setOptions(categoriesData)
-
-    }, [categoryData])
 
 
     const createNewCategory = async (dataToPost: any) => {
         const res = await axiosInstance.post("/category", dataToPost);
+        promiseOptions("")
         return res.data;
     };
 
@@ -73,9 +35,8 @@ const Categories: React.FC<AwesomeInputProps> = React.forwardRef((props, ref) =>
         mutate: createCategories,
     } = useMutation(createNewCategory, {
         onError: (err) => console.log("The error", err),
-        onSuccess: (data) => {
-            console.log(data);
-            handleCategoriesApi
+        onSuccess: (dataVal) => {
+            console.log(dataVal);
         },
     });
     const handleCreateCategories = (category: any) => {
@@ -83,44 +44,40 @@ const Categories: React.FC<AwesomeInputProps> = React.forwardRef((props, ref) =>
     };
 
 
+    const filterCategory = async (inputValue: string) => {
+        try {
+            const response = await axiosInstance.get("/category", {
+                params: {
+                    page: page,
+                    limit: limit,
+                    q: inputValue
+                },
+            })
+            const resData = await response.data;
+            const dataVal = resData?.data
+            const data = dataVal?.map(function (row) {
 
-
-    const filterCategories = (inputValue: string) => {
-
-
-
-        const data = handleCategoriesApi?.data?.data
-
-        const categoriesData = [];
-        for (let i = 0; i < data?.length; i++) { // changed
-            const categories = {}
-            categories.id = data[i].id;
-            categories.label = data[i].name;
-            categoriesData.push(categories);
-
+                return { id: row.id, label: row.name, value: row.id }
+            })
+            return data;
         }
-
-        return categoriesData?.filter((i) =>
-            i.label.toLowerCase().includes(inputValue.toLowerCase())
-        );
-
+        catch (err) {
+            console.log(err)
+        }
     };
-    const loadOptions = (
-        inputValue: string,
-        callback: (options: CategoriesOption[]) => void
-    ) => {
-        setTimeout(() => {
-            callback(filterCategories(inputValue));
-        }, 1000);
-    };
+
+    const promiseOptions = (inputValue: string) =>
+        new Promise<CategoriesOption[]>((resolve) => {
+            resolve(filterCategory(inputValue));
+        });
 
 
     return (
         <>
             <AsyncCreatable
                 cacheOptions
-                defaultOptions={options}
-                loadOptions={loadOptions}
+                defaultOptions
+                loadOptions={promiseOptions}
                 onChange={handleCategoryChange}
                 onCreateOption={handleCreateCategories}
             />
