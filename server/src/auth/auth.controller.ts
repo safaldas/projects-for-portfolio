@@ -18,7 +18,6 @@ import {
   ApiCreatedResponse,
   ApiBody,
 } from '@nestjs/swagger';
-import { User } from '@prisma/client';
 import { UserDto } from '../common/dto';
 
 @ApiTags('Authentication')

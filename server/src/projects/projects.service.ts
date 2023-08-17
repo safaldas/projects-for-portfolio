@@ -5,6 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { FilterDto, PaginationDto } from 'src/common/dto';
 import { PaginationService } from '../common/services/pagination.service';
 import { Project } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class ProjectsService {
@@ -123,9 +124,23 @@ export class ProjectsService {
   }
 
   async remove(id: number) {
-    const item = await this.prisma.project.delete({
-      where: { id },
-    });
-    return item;
+    try {
+      const item = await this.prisma.project.delete({
+        where: { id },
+      });
+      return item;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          // Handle foreign key constraint error
+          throw new NotFoundException(
+            'Project not found or associated with tasks.',
+          );
+        }
+      }
+
+      // Handle other errors or re-throw if needed
+      throw error;
+    }
   }
 }

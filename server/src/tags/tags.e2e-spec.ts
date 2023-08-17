@@ -75,4 +75,40 @@ describe('TagsController (e2e)', () => {
       .withCookies('$S{authcookie}')
       .expectStatus(404);
   });
+
+  it('should throw error when pagination page is less than 1', async () => {
+    await pactum
+      .spec()
+      .get('/tags')
+      .withCookies('$S{authcookie}')
+      .withQueryParams({
+        page: 0,
+        limit: 10,
+      })
+      .expectStatus(400)
+      .expectJson('message.0', 'page must not be less than 1');
+  });
+  it('should return a list of tags with pagination', async () => {
+    await pactum
+      .spec()
+      .post('/tags')
+      .withCookies('$S{authcookie}')
+      .withBody({ name: 'tag 1' })
+      .expectStatus(201);
+    await pactum
+      .spec()
+      .get('/tags')
+      .withCookies('$S{authcookie}')
+      .withQueryParams({
+        page: 1,
+        limit: 10,
+      })
+      .expectStatus(200)
+      .expectJson('data.0.name', 'tag 1')
+      .expectJson('meta', {
+        page: 1,
+        limit: 10,
+        totalItems: 1,
+      });
+  });
 });

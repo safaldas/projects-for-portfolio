@@ -97,6 +97,21 @@ describe('ProjectsController (e2e)', () => {
         .expectStatus(200);
     });
 
+    it('should update a project with user id ', () => {
+      return pactum
+        .spec()
+        .withCookies('$S{authcookie}')
+        .patch('/projects/{id}')
+        .withPathParams('id', `$S{projectid}`)
+        .withBody({
+          users: [`$S{userid}`],
+        })
+        .expectJson('id', '$S{projectid}')
+        .expectJson('name', 'Updated Project')
+        .expectJson('description', 'Updated description')
+        .expectStatus(200);
+    });
+
     it('should delete a project', () => {
       return pactum
         .spec()
@@ -191,8 +206,7 @@ describe('ProjectsController (e2e)', () => {
           page: 1,
           limit: 10,
           totalItems: 1,
-        })
-        .end();
+        });
     });
     it('should return a empty list of projects with filter for data not in description or name', async () => {
       await pactum
@@ -210,8 +224,7 @@ describe('ProjectsController (e2e)', () => {
           page: 1,
           limit: 10,
           totalItems: 0,
-        })
-        .end();
+        });
     });
     // ... more test cases ...
   });

@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 
-export class FilterDto {
+export class ProjectsFilterDto {
   @ApiProperty({
     required: false,
     description: 'Filter by name',
@@ -46,14 +46,6 @@ export class FilterDto {
   @IsNumber()
   @Type(() => Number)
   tag?: number;
-
-  @ApiProperty({
-    required: false,
-    description: 'Filter by status',
-  })
-  @IsOptional()
-  @IsString()
-  status?: string;
 
   @ApiProperty({
     required: false,

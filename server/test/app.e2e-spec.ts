@@ -1,5 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
+import {
+  HttpStatus,
+  INestApplication,
+  Logger,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AppModule } from './../src/app.module';
 import { HttpAdapterHost } from '@nestjs/core';
 import { PrismaClientExceptionFilter } from '../src/prisma/prisma-client-exception.filter';
@@ -8,53 +13,62 @@ import { RefreshSessionMiddleware } from '../src/common/middlewares';
 import * as pactum from 'pactum';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { SigninDto, SignupDto } from '../src/auth/dto';
+import checkDatabaseConnection from '../src/checkDbConnection';
 
 export let app: INestApplication;
 const port = 3331;
 let prisma: PrismaService;
 beforeAll(async () => {
-  if (app) await app.close();
+  const isDatabaseConnected = await checkDatabaseConnection();
+  const logger = new Logger('App: main');
+  if (isDatabaseConnected) {
+    if (app) await app.close();
 
-  const moduleFixture: TestingModule = await Test.createTestingModule({
-    imports: [AppModule],
-  }).compile();
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+    app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+      }),
+    );
+    app.use(
+      session({
+        saveUninitialized: false,
+        secret: 'sup3rs3cr3tkjnkjnkjnkjnljn98098u09n',
+        resave: false,
+        cookie: {
+          secure: false,
+          httpOnly: false,
+          maxAge: 7 * 24 * 60 * 60 * 1000,
+        },
+      }),
+    );
+    app.use(new RefreshSessionMiddleware().use);
 
-  app = moduleFixture.createNestApplication();
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-    }),
-  );
-  app.use(
-    session({
-      saveUninitialized: false,
-      secret: 'sup3rs3cr3tkjnkjnkjnkjnljn98098u09n',
-      resave: false,
-      cookie: {
-        secure: false,
-        httpOnly: false,
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      },
-    }),
-  );
-  app.use(new RefreshSessionMiddleware().use);
+    const { httpAdapter } = app.get(HttpAdapterHost);
+    app.useGlobalFilters(
+      new PrismaClientExceptionFilter(httpAdapter, {
+        P2000: HttpStatus.BAD_REQUEST,
+        P2002: HttpStatus.CONFLICT,
+        P2025: HttpStatus.NOT_FOUND,
+      }),
+    );
+    await app.init();
 
-  const { httpAdapter } = app.get(HttpAdapterHost);
-  app.useGlobalFilters(
-    new PrismaClientExceptionFilter(httpAdapter, {
-      P2000: HttpStatus.BAD_REQUEST,
-      P2002: HttpStatus.CONFLICT,
-      P2025: HttpStatus.NOT_FOUND,
-    }),
-  );
-  await app.init();
+    await app.listen(port);
 
-  await app.listen(port);
-
-  prisma = app.get(PrismaService);
-  await prisma.cleanDb();
-  pactum.request.setBaseUrl(`http://localhost:${port}`);
+    prisma = app.get(PrismaService);
+    await prisma.cleanDb();
+    pactum.request.setBaseUrl(`http://localhost:${port}`);
+  } else {
+    logger.error(
+      'Database is not available. Nest application not started. Run the docker service first and run "npm run db:dev:up"',
+    );
+    process.exit(1);
+  }
 });
 describe('AppController (e2e)', () => {
   describe('App', () => {
@@ -108,6 +122,7 @@ describe('AppController (e2e)', () => {
           .spec()
           .post('/auth/signup')
           .withBody(signupDto)
+          .stores('userid', 'id')
           .expectStatus(201);
       });
     });

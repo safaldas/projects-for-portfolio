@@ -11,9 +11,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
-import { CreateProjectDto } from './dto/create-project.dto';
-import { UpdateProjectDto } from './dto/update-project.dto';
-import { FilterDto, GetByIdDto, PaginationDto } from '../common/dto';
+import { GetByIdDto, PaginationDto } from '../common/dto';
 import { AuthenticatedGuard } from '../auth/guards';
 import { ApiPaginatedResponse, GetIdFromParams } from '../common/decorators';
 import {
@@ -21,36 +19,58 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiCookieAuth,
+  ApiOperation,
 } from '@nestjs/swagger';
-import { Project } from '@prisma/client';
+import { CreateProjectDto, ProjectDto, UpdateProjectDto } from './dto';
+import { ProjectsFilterDto } from './dto/projects-filter.dto';
 
 @ApiTags('Projects') // This adds a tag to the Swagger documentation for the controller
 @UseGuards(AuthenticatedGuard)
 @Controller('projects')
+@ApiCookieAuth()
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
-  @ApiCookieAuth()
-  @ApiCreatedResponse()
+
+  @ApiOperation({ summary: 'Create a new Project' })
+  @ApiCreatedResponse({
+    type: ProjectDto,
+  })
   @Post()
   create(@Body() createProjectDto: CreateProjectDto) {
     return this.projectsService.create(createProjectDto);
   }
 
-  @ApiPaginatedResponse(CreateProjectDto)
+  @ApiOperation({
+    summary: 'Get list of items with pagination, filter and search also',
+  })
+  @ApiPaginatedResponse(ProjectDto)
+  @ApiOkResponse({
+    description: 'Projects retrieved successfully',
+    type: [ProjectDto],
+  })
   @Get()
   findAll(
     @Query() paginationDto: PaginationDto,
-    @Query() filterDto: FilterDto,
+    @Query() filterDto: ProjectsFilterDto,
   ) {
     return this.projectsService.findAll(paginationDto, filterDto);
   }
 
+  @ApiOperation({ summary: 'Get a project by ID' })
+  @ApiOkResponse({
+    description: 'Project retrieved successfully',
+    type: ProjectDto,
+  })
   @Get(':id')
   findOne(@GetIdFromParams('id') id: GetByIdDto) {
     return this.projectsService.findOne(+id);
   }
 
-  @ApiOkResponse({ description: 'Project updated successfully' })
+  @ApiOperation({ summary: 'Update a project by ID' })
+  @ApiOkResponse({
+    description: 'Project updated successfully',
+    type: ProjectDto,
+  })
   @Patch(':id')
   update(
     @GetIdFromParams('id') id: GetByIdDto,
@@ -59,7 +79,11 @@ export class ProjectsController {
     return this.projectsService.update(+id, updateProjectDto);
   }
 
-  @ApiOkResponse({ description: 'Project removed successfully' })
+  @ApiOperation({ summary: 'Delete a project by ID' })
+  @ApiOkResponse({
+    description: 'Project removed successfully',
+    type: ProjectDto,
+  })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   remove(@GetIdFromParams('id') id: GetByIdDto) {
