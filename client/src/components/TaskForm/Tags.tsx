@@ -80,7 +80,6 @@ const Tags: React.FC<AwesomeInputProps> = React.forwardRef((props, ref) => {
 
     return (
         <AsyncCreatable
-            cacheOptions
             defaultOptions
             loadOptions={promiseOptions}
             isMulti

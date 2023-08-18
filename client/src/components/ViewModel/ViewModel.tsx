@@ -1,12 +1,27 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import * as AlertDialog from '@radix-ui/react-alert-dialog';
 import './styles.css';
 import { List } from '@phork/phorkit'
+import mockCards from '../../data/cards'
 
 
 const AlertDialogDemo = (props) => {
-  const { tasks, content } = props;
+  const { content } = props;
+  const [tasks, setTasks] = useState([]);
 
+  const modalData = () => {
+    for (let i = 0; i < mockCards.length; i++) { // changed
+      const card = {}
+      card.id = mockCards[i].id;
+      card.label = mockCards[i].name;
+      tasks.push(card);
+    }
+    return tasks
+  }
+  useEffect(() => {
+    modalData()
+
+  }, [])
   return (
 
     <AlertDialog.Root>

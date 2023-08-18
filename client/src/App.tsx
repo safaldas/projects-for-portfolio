@@ -4,7 +4,7 @@ import '@phork/phorkit/styles/common.css';
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home/Home';
-import KarenBoard from './pages/KanbanBoard/KarenBoard';
+import KarenBoard from './pages/KanbanBoard/KarenPage';
 import AllProjects from './pages/AllProjects/AllProjects';
 import MyProjects from './pages/MyProjects/index';
 import SignUp from './pages/SignUp/SignUp';
@@ -13,6 +13,9 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query'
 import ProtectedRoute from './util/ProtectedRoute';
+import { Provider } from 'react-redux';
+import store from './store';
+import { ModalProvider } from './hooks/useModal';
 
 
 
@@ -20,35 +23,40 @@ function App() {
   const queryClient = new QueryClient()
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter basename={'/'}>
-        <div>
-          <Routes>
-            <Route path="/board"
-              element={
+      <Provider store={store}>
+
+        <BrowserRouter basename={'/'}>
+          <div>
+            <Routes>
+              <Route path="/board/:projectId"
+                element={
+                  <ProtectedRoute>
+                    <ModalProvider>
+                      <KarenBoard />
+                    </ModalProvider>
+                  </ProtectedRoute>
+                }>
+              </Route>
+              <Route path="/all" element={
                 <ProtectedRoute>
-                  <KarenBoard />
+                  <AllProjects />
                 </ProtectedRoute>
-              }>
-            </Route>
-            <Route path="/all" element={
-              <ProtectedRoute>
-                <AllProjects />
-              </ProtectedRoute>
-            }></Route>
-            <Route path="/myProjects" element={
-              <ProtectedRoute>
-                <MyProjects />
-              </ProtectedRoute>
-            }></Route>
+              }></Route>
+              <Route path="/myProjects" element={
+                <ProtectedRoute>
+                  <MyProjects />
+                </ProtectedRoute>
+              }></Route>
 
-            <Route path="/" element={<Home />}></Route>
-            <Route path="/signUp" element={<SignUp />}></Route>
+              <Route path="/" element={<Home />}></Route>
+              <Route path="/signUp" element={<SignUp />}></Route>
 
 
 
-          </Routes>
-        </div>
-      </BrowserRouter>
+            </Routes>
+          </div>
+        </BrowserRouter>
+      </Provider>
     </QueryClientProvider>
   );
 }

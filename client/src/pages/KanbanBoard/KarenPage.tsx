@@ -7,30 +7,35 @@ import IColumn from '../../interfaces/IColumn';
 import Column from '../../components/Column';
 import Modal from '../../components/Modal';
 import { useModal } from '../../hooks/useModal';
-import { useAppDispatch, useAppSelector } from '../../hooks/useRedux';
-import { Container, Header, StatusesColumnsContainer, } from './styles';
+import { useDispatch, useSelector } from 'react-redux';
+import { Container, Header, StatusesColumnsContainer } from './styles';
 import { setColumns } from '../../store/slices/columns.slice';
-import {  setCards } from '../../store/slices/cards.slice';
+import { setCards } from '../../store/slices/cards.slice';
 import { ButtonAddCard } from '../../components/ButtonAddCard';
+import GlobalStyle from '../../styles/global';
 
 
-const KanbanPage= () => {
+const KanbanPage = () => {
 
-  const { cards } = useAppSelector((state => state.cards));
-  const { columns } = useAppSelector((state => state.columns));
+  const { cards } = useSelector((state => state.cards));
+  const { columns } = useSelector((state => state.columns));
   const { visible } = useModal();
 
-  const dispatch = useAppDispatch();
-  
+  console.log(columns, "columns")
+  console.log(cards, "cards")
+
+
+  const dispatch = useDispatch();
+
   const onDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
 
     if (!destination) return;
 
     if (
-        destination.droppableId === source.droppableId && 
-        destination.index === source.index
-      ) return;
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) return;
 
     const updatedCards: ICard[] = cards.map(card => {
       if (card.id === draggableId) {
@@ -54,17 +59,17 @@ const KanbanPage= () => {
 
       newColumnCardsIds.splice(source.index, 1);
       newColumnCardsIds.splice(destination.index, 0, draggableId);
-  
+
       const newDestinationColumn: IColumn = {
         ...destinationColumn,
         cardsIds: newColumnCardsIds
       }
-  
+
       const updatedColumns: IColumn[] = columns.map(column => {
         if (column.id === newDestinationColumn.id) return newDestinationColumn;
         else return column;
-      }) ;
-  
+      });
+
       dispatch(setColumns(updatedColumns))
       dispatch(setCards(updatedCards))
 
@@ -92,23 +97,25 @@ const KanbanPage= () => {
       if (column.id === newDestinationColumn.id) return newDestinationColumn;
       if (column.id === newSourceColumn.id) return newSourceColumn;
       else return column;
-    }) ;
+    });
 
     dispatch(setColumns(updatedColumns))
     dispatch(setCards(updatedCards))
 
   }
 
-  
-  
+
+
   return (
     <>
+      <GlobalStyle />
+
       <Container>
         <Header>
-            <h1>Project Title</h1>
-          
+          <h1>Project Title</h1>
+
         </Header>
-        
+
         <StatusesColumnsContainer>
           <DragDropContext onDragEnd={onDragEnd}>
             {columns.map((column, index) => {
@@ -117,22 +124,24 @@ const KanbanPage= () => {
 
               column.cardsIds.forEach(cardId => {
                 const foundedCard = cards.find(card => card.id === cardId);
+
                 if (foundedCard) cardsArray.push(foundedCard);
               })
-            
+
               return (
-                <Column 
-                  key={column.id} 
+                <Column
+                  key={column.id}
                   index={index}
-                  status={column.id} 
+                  status={column.id}
                   cards={cardsArray}
                 />
-            )})}
+              )
+            })}
           </DragDropContext>
         </StatusesColumnsContainer>
-        <ButtonAddCard/>
+        <ButtonAddCard />
       </Container>
-      <Modal visible={visible}/>
+      <Modal visible={visible} />
     </>
   )
 }

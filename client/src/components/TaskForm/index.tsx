@@ -7,14 +7,18 @@ import Tags from "./Tags";
 import Categories from "./Categories";
 import { StyledLoader } from "@phork/phorkit";
 
+import { setIsSubmitted, addProject } from '../../store/slices/projects.slice';
+import { useDispatch } from 'react-redux'
+
 
 const TaskForm = (props) => {
   const [state, setState] = useState({
-    title: "",
+    name: "",
     description: "",
   });
   const [tags, setTags] = useState();
   const [category, setCategory] = useState();
+  const dispatch = useDispatch();
 
 
   const Submit = async (dataToPost) => {
@@ -24,15 +28,18 @@ const TaskForm = (props) => {
   };
 
   const {
+    isSuccess,
     isLoading,
     error,
     mutate: createProject,
   } = useMutation(Submit, {
     onError: (err) => console.log("The error", err),
     onSuccess: (data) => {
-      localStorage.setItem("user", JSON.stringify(data));
+      console.log(data)
+      dispatch(addProject(data))
+      dispatch(setIsSubmitted(true))
       setState({
-        title: "",
+        name: "",
         description: "",
       });
     },
@@ -45,8 +52,9 @@ const TaskForm = (props) => {
     if (tags !== undefined && category !== undefined) {
       let result = tags?.map(a => a?.id);
       let catArr = [];
+      const user = JSON.parse(localStorage.getItem('user'))
       catArr.push(category?.id)
-      createProject({ name: state.title, description: state.description, categories: catArr, tags: result });
+      createProject({ name: state.name, description: state.description, categories: catArr, tags: result, users: [user?.id] });
     }
   };
 
@@ -61,9 +69,11 @@ const TaskForm = (props) => {
   }
 
 
+
+
   return (
     <Form.Root name="categoryForm" onSubmit={handleSubmit} className="FormRoot">
-      <Form.Field className="FormField" name="title">
+      <Form.Field className="FormField" name="name">
         <div
           style={{
             display: "flex",
@@ -73,11 +83,11 @@ const TaskForm = (props) => {
         >
           <Form.Label className="FormLabel">Name</Form.Label>
           <Form.Message className="FormMessage" match="valueMissing">
-            Please enter task title
+            Please enter task name
           </Form.Message>
         </div>
         <Form.Control asChild>
-          <input className="Input" value={state.title} onChange={handleChange} type="text" required />
+          <input className="Input" value={state.name} onChange={handleChange} type="text" required />
         </Form.Control>
       </Form.Field>
       <Form.Field className="FormField" name="description">

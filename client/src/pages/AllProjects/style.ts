@@ -60,10 +60,18 @@ export const TextContainer = styled.div`
 height:80%
   `
 
+export const ListElements = styled.div`
+height: 50%;
+  width: 300px;
+
+
+`
+
 export const ButtonContainer = styled.div`
 
   display:flex;
   justify-content: flex-end;
+  margin-top:10px;
   `
 
 export const Button = styled.button`
@@ -81,13 +89,12 @@ background-color: #0000FF;
     margin-right: 10px;
     font-size: 15px;
     line-height: 1;
-    height: 20px !important;
 
   `
 
-export const ListElements = styled.div`
-height: 50%;
-  width: 300px;
-
-
+  export const NoData = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 20%;
+  font-size:30px;
 `

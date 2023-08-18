@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./style.css";
 import AsyncCreatable from "react-select/async-creatable";
 import { useMutation } from "@tanstack/react-query";
@@ -27,7 +27,6 @@ const Categories: React.FC<AwesomeInputProps> = React.forwardRef((props, ref) =>
 
     const createNewCategory = async (dataToPost: any) => {
         const res = await axiosInstance.post("/category", dataToPost);
-        promiseOptions("")
         return res.data;
     };
 
@@ -44,7 +43,7 @@ const Categories: React.FC<AwesomeInputProps> = React.forwardRef((props, ref) =>
     };
 
 
-    const filterCategory = async (inputValue: string) => {
+    const filterCategory = async (inputValue = "") => {
         try {
             const response = await axiosInstance.get("/category", {
                 params: {
@@ -59,6 +58,7 @@ const Categories: React.FC<AwesomeInputProps> = React.forwardRef((props, ref) =>
 
                 return { id: row.id, label: row.name, value: row.id }
             })
+
             return data;
         }
         catch (err) {
@@ -68,18 +68,22 @@ const Categories: React.FC<AwesomeInputProps> = React.forwardRef((props, ref) =>
 
     const promiseOptions = (inputValue: string) =>
         new Promise<CategoriesOption[]>((resolve) => {
+            console.log("hittt")
             resolve(filterCategory(inputValue));
         });
+
+
+
 
 
     return (
         <>
             <AsyncCreatable
-                cacheOptions
                 defaultOptions
                 loadOptions={promiseOptions}
                 onChange={handleCategoryChange}
                 onCreateOption={handleCreateCategories}
+
             />
         </>
     )

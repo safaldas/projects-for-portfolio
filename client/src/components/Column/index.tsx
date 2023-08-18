@@ -13,7 +13,10 @@ interface ColumnProps {
   index: number;
 }
 
+// const status={}
+
 const Column: React.FC<ColumnProps> = ({ status, cards, index }) => {
+  console.log(status, "status")
   return (
     <Container isfirstcolumn={index === 0}>
       <h2>{status}</h2>
@@ -22,12 +25,12 @@ const Column: React.FC<ColumnProps> = ({ status, cards, index }) => {
           <CardsList ref={provided.innerRef} {...provided.droppableProps}>
             {cards
               .filter(card => card.status === status)
-              .map((card, index) => <Card key={card.id} card={card} index={index}/>)
+              .map((card, index) => <Card key={card.id} card={card} index={index} />)
             }
             {provided.placeholder}
-        </CardsList>
+          </CardsList>
         )}
-        </Droppable>
+      </Droppable>
     </Container>
   )
 }
