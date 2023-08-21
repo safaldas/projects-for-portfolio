@@ -131,7 +131,11 @@ export class ProjectsController {
     return this.projectsService.findTasksByUserAndByProjectId(user.id, +id);
   }
 
-  @ApiOperation({ summary: 'Update task status by the user of this project' })
+  @ApiOperation({
+    summary: 'Update task status by the user of this project',
+    description:
+      'The userTaskId of the task. This is not the task id but the relation between user and task. this is recieved in the get /projects/$S{projectId}/tasks api',
+  })
   @ApiOkResponse({
     description: 'Tasks assigned successfully',
     type: UserTaskDto,
