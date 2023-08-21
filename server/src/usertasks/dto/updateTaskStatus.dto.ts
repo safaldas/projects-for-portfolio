@@ -3,6 +3,11 @@ import { TaskStatus } from '@prisma/client';
 import { IsEnum, IsNotEmpty } from 'class-validator';
 
 export class UpdateTaskStatusDto {
+  @ApiProperty({
+    example: 'COMPLETED',
+    description: 'Status of the task',
+    enum: TaskStatus,
+  })
   @IsEnum(TaskStatus)
   status: TaskStatus;
 
