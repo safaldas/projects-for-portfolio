@@ -14,7 +14,11 @@ import {
 import { TagsService } from './tags.service';
 import { AuthenticatedGuard } from '../auth/guards';
 import { GetByIdDto, PaginationDto } from '../common/dto';
-import { ApiPaginatedResponse, GetIdFromParams } from '../common/decorators';
+import {
+  ApiPaginatedResponse,
+  CurrentUser,
+  GetIdFromParams,
+} from '../common/decorators';
 import {
   ApiTags,
   ApiOperation,
@@ -26,6 +30,7 @@ import {
 } from '@nestjs/swagger';
 import { CreateTagDto, TagDto, UpdateTagDto } from './dto';
 import { TagFilterDto } from './dto/tag-filter.dto';
+import { User } from '@prisma/client';
 
 @UseGuards(AuthenticatedGuard)
 @ApiCookieAuth()
@@ -39,8 +44,8 @@ export class TagsController {
     type: TagDto,
   })
   @Post()
-  create(@Body() createTagDto: CreateTagDto) {
-    return this.tagsService.create(createTagDto);
+  create(@Body() createTagDto: CreateTagDto, @CurrentUser() user: User) {
+    return this.tagsService.create(createTagDto, user);
   }
 
   @ApiOperation({

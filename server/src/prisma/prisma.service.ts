@@ -23,4 +23,18 @@ export class PrismaService extends PrismaClient {
       this.user.deleteMany(),
     ]);
   }
+  createWithUser(entity: string, data: any, userId: number) {
+    data.createdBy.connect.id = userId;
+    return this[entity].create({
+      data,
+    });
+  }
 }
+
+// @Injectable()
+// export abstract class BaseService extends PrismaService {
+//   constructor(private readonly prismaService: PrismaService) {
+//     super({});
+//   }
+
+// }

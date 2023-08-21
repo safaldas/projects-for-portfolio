@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaginationService } from '../common/services/pagination.service';
-import { Task } from '@prisma/client';
+import { Task, User } from '@prisma/client';
 import { FilterDto, PaginationDto } from '../common/dto';
 import { CreateTaskDto, UpdateTaskDto } from './dto';
 
@@ -17,8 +17,9 @@ export class TasksService {
     private paginationService: PaginationService<Task>,
   ) {}
 
-  async create(createTaskDto: CreateTaskDto) {
+  async create(createTaskDto: CreateTaskDto, user: User) {
     try {
+      createTaskDto['createdBy'] = user.id;
       const task = await this.prisma.task.create({ data: createTaskDto });
       return task;
     } catch (error) {

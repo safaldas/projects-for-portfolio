@@ -7,7 +7,7 @@ import { CreateTagDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaginationService } from '../common/services/pagination.service';
-import { Tag } from '@prisma/client';
+import { Tag, User } from '@prisma/client';
 import { FilterDto, PaginationDto } from '../common/dto';
 
 @Injectable()
@@ -17,8 +17,9 @@ export class TagsService {
     private paginationService: PaginationService<Tag>,
   ) {}
 
-  create(createTagDto: CreateTagDto) {
+  create(createTagDto: CreateTagDto, user: User) {
     try {
+      createTagDto['createdBy'] = user.id;
       const tag = this.prisma.tag.create({ data: createTagDto });
       return tag;
     } catch (error) {

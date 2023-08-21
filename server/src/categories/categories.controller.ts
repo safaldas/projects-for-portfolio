@@ -14,7 +14,11 @@ import { CategoryService } from './categories.service';
 import { CategoryDto, CreateCategoryDto, UpdateCategoryDto } from './dto';
 import { AuthenticatedGuard } from '../auth/guards';
 import { GetByIdDto, PaginationDto } from '../common/dto';
-import { ApiPaginatedResponse, GetIdFromParams } from '../common/decorators';
+import {
+  ApiPaginatedResponse,
+  CurrentUser,
+  GetIdFromParams,
+} from '../common/decorators';
 import {
   ApiCreatedResponse,
   ApiOkResponse,
@@ -24,6 +28,7 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { CategoryFilterDto } from './dto/category-filter.dto';
+import { User } from '@prisma/client';
 
 @ApiTags('Categories')
 @UseGuards(AuthenticatedGuard)
@@ -37,8 +42,11 @@ export class CategoryController {
     description: 'The category has been created successfully',
     type: CategoryDto,
   })
-  create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoriesService.create(createCategoryDto);
+  create(
+    @Body() createCategoryDto: CreateCategoryDto,
+    @CurrentUser() user: User,
+  ) {
+    return this.categoriesService.create(createCategoryDto, user);
   }
 
   @ApiOperation({

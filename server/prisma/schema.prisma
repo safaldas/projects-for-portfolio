@@ -20,7 +20,12 @@ model User {
   hash  String
   name  String
 
-  projects Project[] // Define the many-to-many relation with projects
+  projects          Project[] // Define the many-to-many relation with projects
+  tasks             UserTask[]
+  createdCategories Category[] @relation("CreatedByCategories")
+  createdTags       Tag[]      @relation("CreatedByTags")
+  createdTasks      Task[]     @relation("CreatedByTasks")
+  createdProjects   Project[]  @relation("CreatedByProjects")
 
   @@map("Users")
 }
@@ -32,11 +37,13 @@ model Project {
 
   name        String
   description String
+  createdBy   Int?
 
   tasks      Task[] // Define the one-to-many relation with tasks
   users      User[] // Define the many-to-many relation with users
   categories Category[] // Define the many-to-many relation with categories
   tags       Tag[] // Define the many-to-many relation with tags
+  creator    User?      @relation("CreatedByProjects", fields: [createdBy], references: [id])
 
   @@map("Projects")
 }
@@ -56,20 +63,48 @@ model Task {
   description String     @default("")
   status      TaskStatus @default(TODO)
   projectId   Int // Foreign key to relate tasks to the project they belong to
+  createdBy   Int?
 
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade) // Define the relation back to the Project model
+  project Project    @relation(fields: [projectId], references: [id], onDelete: Cascade) // Define the relation back to the Project model
+  tasks   UserTask[]
+  creator User?      @relation("CreatedByTasks", fields: [createdBy], references: [id])
 
   @@map("Tasks")
 }
 
 model Category {
-  id       Int       @id @default(autoincrement())
-  name     String    @unique
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdBy Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  creator  User?     @relation("CreatedByCategories", fields: [createdBy], references: [id])
   projects Project[] // Define the many-to-many relation with projects
 }
 
 model Tag {
-  id       Int       @id @default(autoincrement())
-  name     String    @unique
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdBy Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  creator  User?     @relation("CreatedByTags", fields: [createdBy], references: [id])
   projects Project[] // Define the many-to-many relation with projects
+}
+
+model UserTask {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  status TaskStatus @default(TODO)
+  userId Int // Foreign key to relate user tasks to users
+  taskId Int // Foreign key to relate user tasks to tasks
+
+  user User @relation(fields: [userId], references: [id])
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@map("UserTasks")
 }

@@ -19,6 +19,7 @@ describe('TagsController (e2e)', () => {
       .withCookies('$S{authcookie}')
       .withBody({ name: 'Tag 1' })
       .stores('tagid', 'id')
+      .expectJson('createdBy', '$S{userid}')
       .expectStatus(201);
   });
   it('should get a tag ', () => {
@@ -42,10 +43,9 @@ describe('TagsController (e2e)', () => {
       .spec()
       .withCookies('$S{authcookie}')
       .patch('/tags/{id}')
-      .withPathParams('id', `$S{tagid}`)
+      .withPathParams('id', 2232323)
       .withBody({ name: 'Tag 2' })
-      .expectBody({ id: `$S{tagid}`, name: 'Tag 2' })
-      .expectStatus(200);
+      .expectStatus(404);
   });
 
   it('should update a tag ', () => {
@@ -55,7 +55,7 @@ describe('TagsController (e2e)', () => {
       .patch('/tags/{id}')
       .withPathParams('id', `$S{tagid}`)
       .withBody({ name: 'Tag 2' })
-      .expectBody({ id: `$S{tagid}`, name: 'Tag 2' })
+      .expectJsonLike({ id: `$S{tagid}`, name: 'Tag 2' })
       .expectStatus(200);
   });
   it('should delete a tag ', () => {

@@ -4,7 +4,7 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { FilterDto, PaginationDto } from 'src/common/dto';
 import { PaginationService } from '../common/services/pagination.service';
-import { Project } from '@prisma/client';
+import { Project, User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
@@ -14,11 +14,12 @@ export class ProjectsService {
     private paginationService: PaginationService<Project>,
   ) {}
 
-  async create(createProjectDto: CreateProjectDto) {
+  async create(createProjectDto: CreateProjectDto, user: User) {
     try {
       const projectData: any = {
         name: createProjectDto.name,
         description: createProjectDto.description,
+        createdBy: user.id,
       };
 
       if (createProjectDto.tasks) {
@@ -142,5 +143,19 @@ export class ProjectsService {
       // Handle other errors or re-throw if needed
       throw error;
     }
+  }
+
+  async findTasksByUserAndByProjectId(userId: number, projectId: number) {
+    return this.prisma.userTask.findMany({
+      where: {
+        userId,
+        task: {
+          projectId,
+        },
+      },
+      include: {
+        task: true,
+      },
+    });
   }
 }
