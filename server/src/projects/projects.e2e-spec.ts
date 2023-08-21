@@ -290,7 +290,7 @@ describe('ProjectsController (e2e)', () => {
               taskId: 2323,
               userId: 23,
             })
-            .expectStatus(200);
+            .expectStatus(404);
         });
       });
 
