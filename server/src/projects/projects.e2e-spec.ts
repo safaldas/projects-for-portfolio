@@ -281,17 +281,17 @@ describe('ProjectsController (e2e)', () => {
             userId: '$S{userid}',
           })
           .expectStatus(201);
-        it('should fail when assigning a wrong taskid ', async () => {
-          await pactum
-            .spec()
-            .post(`/projects/$S{projectId}/mytasks`)
-            .withCookies('$S{authcookie}')
-            .withBody({
-              taskId: 2323,
-              userId: 23,
-            })
-            .expectStatus(200);
-        });
+      });
+      it('should fail when assigning a wrong taskid ', async () => {
+        await pactum
+          .spec()
+          .post(`/projects/$S{projectId}/mytasks`)
+          .withCookies('$S{authcookie}')
+          .withBody({
+            taskId: 2323,
+            userId: 23,
+          })
+          .expectStatus(404);
       });
 
       it('should return list of tasks of this project of user ', async () => {
