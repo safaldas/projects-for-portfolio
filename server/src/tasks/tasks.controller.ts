@@ -14,7 +14,11 @@ import {
 import { TasksService } from './tasks.service';
 import { AuthenticatedGuard } from '../auth/guards';
 import { GetByIdDto, PaginationDto } from '../common/dto';
-import { ApiPaginatedResponse, GetIdFromParams } from '../common/decorators';
+import {
+  ApiPaginatedResponse,
+  CurrentUser,
+  GetIdFromParams,
+} from '../common/decorators';
 import {
   ApiTags,
   ApiCreatedResponse,
@@ -24,6 +28,7 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { CreateTaskDto, TaskDto, TaskFilterDto, UpdateTaskDto } from './dto';
+import { User } from '@prisma/client';
 
 @ApiTags('Tasks')
 @UseGuards(AuthenticatedGuard)
@@ -37,8 +42,8 @@ export class TasksController {
     description: 'The task has been successfully created',
     type: TaskDto,
   })
-  create(@Body() createTaskDto: CreateTaskDto) {
-    return this.tasksService.create(createTaskDto);
+  create(@Body() createTaskDto: CreateTaskDto, @CurrentUser() user: User) {
+    return this.tasksService.create(createTaskDto, user);
   }
 
   @ApiOperation({

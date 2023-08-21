@@ -9,11 +9,17 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Param,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { GetByIdDto, PaginationDto } from '../common/dto';
 import { AuthenticatedGuard } from '../auth/guards';
-import { ApiPaginatedResponse, GetIdFromParams } from '../common/decorators';
+import {
+  ApiPaginatedResponse,
+  CurrentUser,
+  GetIdFromParams,
+} from '../common/decorators';
 import {
   ApiTags,
   ApiCreatedResponse,
@@ -23,21 +29,33 @@ import {
 } from '@nestjs/swagger';
 import { CreateProjectDto, ProjectDto, UpdateProjectDto } from './dto';
 import { ProjectsFilterDto } from './dto/projects-filter.dto';
+import { User } from '@prisma/client';
+import { AssignUserToTaskDto } from '../usertasks/dto/assignUserToTask.dto';
+import { UpdateTaskStatusDto } from '../usertasks/dto/updateTaskStatus.dto';
+import { UsertasksService } from '../usertasks/usertasks.service';
+import { UserTaskDto } from '../usertasks/dto/UserTask.dto';
+import { GetUserTaskDto } from '../usertasks/dto/GetUserTasks.dto';
 
 @ApiTags('Projects') // This adds a tag to the Swagger documentation for the controller
 @UseGuards(AuthenticatedGuard)
 @Controller('projects')
 @ApiCookieAuth()
 export class ProjectsController {
-  constructor(private readonly projectsService: ProjectsService) {}
+  constructor(
+    private readonly projectsService: ProjectsService,
+    private readonly userTasksService: UsertasksService,
+  ) {}
 
   @ApiOperation({ summary: 'Create a new Project' })
   @ApiCreatedResponse({
     type: ProjectDto,
   })
   @Post()
-  create(@Body() createProjectDto: CreateProjectDto) {
-    return this.projectsService.create(createProjectDto);
+  create(
+    @Body() createProjectDto: CreateProjectDto,
+    @CurrentUser() user: User,
+  ) {
+    return this.projectsService.create(createProjectDto, user);
   }
 
   @ApiOperation({
@@ -88,5 +106,42 @@ export class ProjectsController {
   @Delete(':id')
   remove(@GetIdFromParams('id') id: GetByIdDto) {
     return this.projectsService.remove(+id);
+  }
+
+  @ApiOperation({ summary: 'Assign task to the user of this project' })
+  @ApiOkResponse({
+    description: 'Task assigned successfully',
+    type: UserTaskDto,
+  })
+  @Post(':id/mytasks')
+  assignTaskToUser(
+    @Body() assignUserToTaskDto: AssignUserToTaskDto,
+    @CurrentUser() user: User,
+  ) {
+    return this.userTasksService.assignTaskToUser(assignUserToTaskDto, user.id);
+  }
+
+  @ApiOperation({ summary: 'Get tasks of the user of this project' })
+  @ApiOkResponse({
+    description: 'Tasks retrieved successfully',
+    type: [GetUserTaskDto],
+  })
+  @Get(':id/mytasks')
+  findTasks(@GetIdFromParams('id') id: GetByIdDto, @CurrentUser() user: User) {
+    return this.projectsService.findTasksByUserAndByProjectId(user.id, +id);
+  }
+
+  @ApiOperation({ summary: 'Update task status by the user of this project' })
+  @ApiOkResponse({
+    description: 'Tasks assigned successfully',
+    type: UserTaskDto,
+  })
+  @Patch(':projectId/mytasks/:taskId/status')
+  updateUserTaskStatus(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Param('taskId', ParseIntPipe) taskId: number,
+    @Body() updateTaskStatusDto: UpdateTaskStatusDto,
+  ) {
+    return this.userTasksService.updateUserTaskStatus(updateTaskStatusDto);
   }
 }

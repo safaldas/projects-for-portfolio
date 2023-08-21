@@ -129,7 +129,6 @@ describe('TasksController (e2e)', () => {
         .spec()
         .post('/tasks')
         .withCookies('$S{authcookie}')
-
         .withBody({
           name: 'My task',
           projectId: '$S{projectid}',
@@ -137,6 +136,7 @@ describe('TasksController (e2e)', () => {
         .expectStatus(201)
         .stores('taskid', 'id')
         .expectBodyContains('id')
+        .expectJson('createdBy', '$S{userid}')
         .expectBodyContains('My task');
     });
     describe('Pagination of Tasks', () => {

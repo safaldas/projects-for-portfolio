@@ -22,14 +22,23 @@ export class ProjectDto {
   updatedAt: Date;
 
   @ApiProperty({
+    example: 'Project 1',
     description: 'The name of the project',
   })
   name: string;
 
   @ApiProperty({
+    example: 'Description of Project 1 ',
+
     description: 'The description of the project',
   })
   description: string;
+
+  @ApiProperty({
+    example: 2,
+    description: 'Id of user who created this',
+  })
+  createdBy: Date;
 
   @ApiProperty({
     description: 'The tasks associated with the project',

@@ -135,6 +135,7 @@ describe('ProjectsController (e2e)', () => {
           categories: ['$S{categoryid}'],
           tags: ['$S{tagid}'],
         })
+        .stores('projectId', 'id')
         .expectStatus(201);
 
       // Get the created project ID
@@ -225,6 +226,102 @@ describe('ProjectsController (e2e)', () => {
           limit: 10,
           totalItems: 0,
         });
+    });
+
+    describe('Assigning task to user and its associations', () => {
+      it('should return empty list of tasks for this project ', async () => {
+        await pactum
+          .spec()
+          .get(`/projects/$S{projectId}/mytasks`)
+          .withCookies('$S{authcookie}')
+          .expectJsonMatch([])
+          .expectStatus(200);
+      });
+      it('should assign a task of this project to this user', async () => {
+        // Create a task associated with the project
+        await pactum
+          .spec()
+          .post('/tasks')
+          .withCookies('$S{authcookie}')
+          .withBody({ name: 'Test Task 1', projectId: '$S{projectId}' }) // Associate the task with the created project
+          .stores('taskid1', 'id')
+          .expectStatus(201);
+        // create another task and attach to project
+        await pactum
+          .spec()
+          .post('/tasks')
+          .withCookies('$S{authcookie}')
+          .withBody({ name: 'Test Task 2', projectId: '$S{projectId}' }) // Associate the task with the created project
+          .stores('taskid2', 'id')
+          .expectStatus(201);
+
+        await pactum
+          .spec()
+          .get('/tasks')
+          .withCookies('$S{authcookie}')
+          .expectStatus(200);
+
+        // assign these tasks to the user
+        await pactum
+          .spec()
+          .post(`/projects/$S{projectId}/mytasks`)
+          .withCookies('$S{authcookie}')
+          .withBody({
+            taskId: '$S{taskid1}',
+            userId: '$S{userid}',
+          })
+          .expectStatus(201);
+
+        await pactum
+          .spec()
+          .post(`/projects/$S{projectId}/mytasks`)
+          .withCookies('$S{authcookie}')
+          .withBody({
+            taskId: '$S{taskid2}',
+            userId: '$S{userid}',
+          })
+          .expectStatus(201);
+        it('should fail when assigning a wrong taskid ', async () => {
+          await pactum
+            .spec()
+            .post(`/projects/$S{projectId}/mytasks`)
+            .withCookies('$S{authcookie}')
+            .withBody({
+              taskId: 2323,
+              userId: 23,
+            })
+            .expectStatus(200);
+        });
+      });
+
+      it('should return list of tasks of this project of user ', async () => {
+        await pactum
+          .spec()
+          .get(`/projects/$S{projectId}/mytasks`)
+          .withCookies('$S{authcookie}')
+          .expectJsonLength(2)
+          .stores('usertaskid1', '0.id')
+          .expectStatus(200);
+      });
+      it('should update user task with new status ', async () => {
+        await pactum
+          .spec()
+          .patch(`/projects/$S{projectId}/mytasks/$S{taskid1}/status`)
+          .withCookies('$S{authcookie}')
+          .withBody({
+            userTaskId: '$S{usertaskid1}',
+            status: 'IN_PROGRESS',
+          })
+          .expectStatus(200);
+      });
+      it('should return list of tasks of this project of user ', async () => {
+        await pactum
+          .spec()
+          .get(`/projects/$S{projectId}/mytasks`)
+          .withCookies('$S{authcookie}')
+          .expectJsonLength(2)
+          .expectStatus(200);
+      });
     });
     // ... more test cases ...
   });

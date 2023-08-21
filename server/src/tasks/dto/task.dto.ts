@@ -33,7 +33,7 @@ export class TaskDto {
 
   @ApiProperty({
     description: 'The status of the task',
-    example: 'IN_PROGRESS',
+    example: 'TODO',
   })
   status: string;
 
@@ -42,4 +42,10 @@ export class TaskDto {
     example: 1,
   })
   projectId: number;
+
+  @ApiProperty({
+    example: 2,
+    description: 'Id of user who created this',
+  })
+  createdBy: Date;
 }

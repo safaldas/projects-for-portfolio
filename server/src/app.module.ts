@@ -9,6 +9,7 @@ import passport from 'passport';
 import { CategoryModule } from './categories/categories.module';
 import { AppController } from './app.controller';
 import { TasksModule } from './tasks/tasks.module';
+import { UsertasksModule } from './usertasks/usertasks.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { TasksModule } from './tasks/tasks.module';
     TagsModule,
     CategoryModule,
     TasksModule,
+    UsertasksModule,
   ],
   exports: [],
   controllers: [AppController],

@@ -7,7 +7,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaginationService } from '../common/services/pagination.service';
-import { Category } from '@prisma/client';
+import { Category, User } from '@prisma/client';
 import { FilterDto, PaginationDto } from '../common/dto';
 
 @Injectable()
@@ -17,8 +17,9 @@ export class CategoryService {
     private paginationService: PaginationService<Category>,
   ) {}
 
-  create(createCategoryDto: CreateCategoryDto) {
+  create(createCategoryDto: CreateCategoryDto, user: User) {
     try {
+      createCategoryDto['createdBy'] = user.id;
       const category = this.prisma.category.create({ data: createCategoryDto });
       return category;
     } catch (error) {

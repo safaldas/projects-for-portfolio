@@ -56,10 +56,9 @@ describe('Auth', () => {
         .spec()
         .withCookies('$S{authcookie}')
         .patch('/category/{id}')
-        .withPathParams('id', `$S{categoryid}`)
+        .withPathParams('id', 2343)
         .withBody({ name: 'Category 2' })
-        .expectBody({ id: `$S{categoryid}`, name: 'Category 2' })
-        .expectStatus(200);
+        .expectStatus(404);
     });
 
     it('should update a category', () => {
@@ -69,7 +68,11 @@ describe('Auth', () => {
         .patch('/category/{id}')
         .withPathParams('id', `$S{categoryid}`)
         .withBody({ name: 'Category 2' })
-        .expectBody({ id: `$S{categoryid}`, name: 'Category 2' })
+        .expectJsonLike({
+          id: `$S{categoryid}`,
+          name: 'Category 2',
+          createdBy: '$S{userid}',
+        })
         .expectStatus(200);
     });
 
@@ -111,6 +114,7 @@ describe('Auth', () => {
         .withCookies('$S{authcookie}')
         .withBody({ name: 'Category 1' })
         .stores('categoryid', 'id')
+        .expectJson('createdBy', '$S{userid}')
         .expectStatus(201);
       await pactum
         .spec()
