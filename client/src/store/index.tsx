@@ -1,12 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
 
-import columnsReducer from './slices/columns.slice';
 import cardsReducer from './slices/cards.slice';
 import projectReducer from './slices/projects.slice'
 
 const store = configureStore({
   reducer: {
-    columns: columnsReducer,
     cards: cardsReducer,
     project: projectReducer
   }

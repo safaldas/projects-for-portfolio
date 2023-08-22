@@ -4,13 +4,9 @@ interface ColorProps {
   color: string;
 }
 
-interface CardContainerProps {
-  hidecard: boolean;
-}
 
-export const CardContainer = styled.div<CardContainerProps>`
+export const CardContainer = styled.div`
   background-color:  	#808080;
-  opacity:  ${({ hidecard }) => hidecard ? 0.2 : 1};
 
   width: 300px;
   height: 110px;

@@ -9,7 +9,6 @@ import Modal from '../../components/Modal';
 import { useModal } from '../../hooks/useModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { Container, Header, StatusesColumnsContainer } from './styles';
-import { setColumns } from '../../store/slices/columns.slice';
 import { setCards } from '../../store/slices/cards.slice';
 import { ButtonAddCard } from '../../components/ButtonAddCard';
 import GlobalStyle from '../../styles/global';
@@ -18,17 +17,41 @@ import GlobalStyle from '../../styles/global';
 const KanbanPage = () => {
 
   const { cards } = useSelector((state => state.cards));
-  const { columns } = useSelector((state => state.columns));
   const { visible } = useModal();
 
-  console.log(columns, "columns")
   console.log(cards, "cards")
+
+  const col = ['TODO', 'IN_PROGRESS', 'COMPLETED']
+
+
+  const interm = {};
+
+  col.forEach((each) => {
+    console.log(each, "each")
+    interm[`${each}`] = [];
+  })
+
+
+  cards.forEach((each) => {
+    if (col.indexOf(each.status) != -1)
+      console.log(each.status, "each.status")
+    interm[`${each.status}`].push(each)
+
+  })
+
+
+  const finalArray: { id: number; data: any; status: string; }[] = []
+  Object.keys(interm).forEach((each, i) => {
+    finalArray.push({ id: i, data: interm[`${each}`], status: each })
+  })
+
 
 
   const dispatch = useDispatch();
 
   const onDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
+    console.log(destination, source, draggableId)
 
     if (!destination) return;
 
@@ -49,61 +72,20 @@ const KanbanPage = () => {
       } else return card;
     })
 
-    const sourceColumn: IColumn = columns.find(column => column.id === source.droppableId) as IColumn;
-    const destinationColumn: IColumn = columns.find(column => column.id === destination.droppableId) as IColumn;
+    const sourceColumn: IColumn = finalArray.find(column => column.status === source.droppableId);
+    const destinationColumn: IColumn = finalArray.find(column => column.status === destination.droppableId);
 
     //Moving cards in the same column
     if (sourceColumn === destinationColumn) {
 
-      const newColumnCardsIds = [...destinationColumn.cardsIds];
-
-      newColumnCardsIds.splice(source.index, 1);
-      newColumnCardsIds.splice(destination.index, 0, draggableId);
-
-      const newDestinationColumn: IColumn = {
-        ...destinationColumn,
-        cardsIds: newColumnCardsIds
-      }
-
-      const updatedColumns: IColumn[] = columns.map(column => {
-        if (column.id === newDestinationColumn.id) return newDestinationColumn;
-        else return column;
-      });
-
-      dispatch(setColumns(updatedColumns))
       dispatch(setCards(updatedCards))
 
       return
     }
 
-    //Moving cards from one column to another
-    const sourceCardsIds = [...sourceColumn.cardsIds];
-    sourceCardsIds.splice(source.index, 1);
-
-    const newSourceColumn: IColumn = {
-      ...sourceColumn,
-      cardsIds: sourceCardsIds
-    }
-
-    const destinationCardsIds = [...destinationColumn.cardsIds];
-    destinationCardsIds.splice(destination.index, 0, draggableId);
-
-    const newDestinationColumn: IColumn = {
-      ...destinationColumn,
-      cardsIds: destinationCardsIds
-    }
-
-    const updatedColumns: IColumn[] = columns.map(column => {
-      if (column.id === newDestinationColumn.id) return newDestinationColumn;
-      if (column.id === newSourceColumn.id) return newSourceColumn;
-      else return column;
-    });
-
-    dispatch(setColumns(updatedColumns))
     dispatch(setCards(updatedCards))
 
   }
-
 
 
   return (
@@ -118,22 +100,15 @@ const KanbanPage = () => {
 
         <StatusesColumnsContainer>
           <DragDropContext onDragEnd={onDragEnd}>
-            {columns.map((column, index) => {
+            {finalArray.map((column, index) => {
 
-              const cardsArray: ICard[] = [];
-
-              column.cardsIds.forEach(cardId => {
-                const foundedCard = cards.find(card => card.id === cardId);
-
-                if (foundedCard) cardsArray.push(foundedCard);
-              })
 
               return (
                 <Column
                   key={column.id}
                   index={index}
-                  status={column.id}
-                  cards={cardsArray}
+                  status={column.status}
+                  cards={column.data}
                 />
               )
             })}

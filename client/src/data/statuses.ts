@@ -1,9 +1,9 @@
 import IStatus from "../interfaces/IStatus";
 
 const statuses: IStatus[] = [
-  IStatus.TO_DO,
-  IStatus.DOING,
-  IStatus.DONE
+  IStatus.TODO,
+  IStatus.IN_PROGRESS,
+  IStatus.COMPLETED
 ]
 
 export default statuses;

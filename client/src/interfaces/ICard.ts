@@ -5,7 +5,7 @@ interface ICard {
   name: string,
   description: string,
   status: IStatus,
-  hidden: boolean
+  projectId: number
 }
 
 export default ICard;

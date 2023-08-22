@@ -1,13 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { ThemeContext } from 'styled-components';
-import { v4 as uuidv4 } from 'uuid';
+import React, { useEffect, useState } from 'react';
 
 import CloseIcon from '../../assets/close.png';
 import { useModal } from '../../hooks/useModal';
 import { useDispatch } from 'react-redux';
 import IStatus from '../../interfaces/IStatus';
 import { addCard, updateOneCard, } from '../../store/slices/cards.slice';
-import { updateColumns } from '../../store/slices/columns.slice';
 import {
   Container,
   Input,
@@ -16,6 +13,10 @@ import {
   MultilineInput,
   ErrorMessage
 } from './styles';
+import { useParams } from 'react-router-dom';
+import { useMutation } from "@tanstack/react-query";
+import axiosInstance from "../../util/axios-instance";
+import { StyledLoader } from "@phork/phorkit";
 
 interface ModalProps {
   visible: boolean;
@@ -23,57 +24,121 @@ interface ModalProps {
 
 const Modal: React.FC<ModalProps> = ({ visible }) => {
   const { toggleVisibility, selectedCard } = useModal();
-  const theme = useContext(ThemeContext);
+  const { projectId } = useParams();
 
-  const [name, setTitle] = useState<string | undefined>(selectedCard?.name);
-  const [description, setDescription] = useState<string | undefined>(selectedCard?.description);
-  const [errorMessage, setErrorMessage] = useState<string | undefined>();
+  const [errorMessage1, setErrorMessage1] = useState('');
+  const [errorMessage2, setErrorMessage2] = useState('');
+
+  const [state, setState] = useState({
+    name: selectedCard ? selectedCard?.name : '',
+    description: selectedCard ? selectedCard?.description : '',
+    projectId: Number(projectId),
+    status: selectedCard ? selectedCard?.status : IStatus.TODO
+
+  })
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    setTitle(selectedCard?.name);
-    setDescription(selectedCard?.description);
+    if (selectedCard) {
+      setState((prevState) => ({
+        ...prevState,
+        name: selectedCard?.name,
+        description: selectedCard?.description,
+        projectId: Number(projectId),
+        status: selectedCard?.status
+      }));
+    }
+
+
   }, [selectedCard, visible])
 
   const handleSave = () => {
+    console.log(state, "statecon");
 
-    if (!name) {
-      setErrorMessage("The name field can´t be empty!")
+
+    if (!state.name) {
+      setErrorMessage1("The name field can´t be empty!")
       return;
     }
 
-    setErrorMessage(undefined);
+    if (!state.description) {
+      setErrorMessage2("The description field can´t be empty!")
+      return;
+    }
 
-    if (!selectedCard?.id) {
-      const newCard = {
-        id: uuidv4(),
-        name,
-        description,
-        status: IStatus.TO_DO,
-        hidden: false,
-      }
-      dispatch(addCard(newCard))
-      dispatch(updateColumns(newCard.id))
-      toggleVisibility(undefined);
+    setErrorMessage1('');
+    setErrorMessage2('');
+
+    if (!errorMessage1 && !errorMessage2) {
+      createTask(state);
 
     }
 
-    const updatedCard = {
-      ...selectedCard,
-      name,
-      description,
-    }
 
-    dispatch(updateOneCard(updatedCard))
-    toggleVisibility(undefined);
+
   }
+
+  const SubmitCard = async (dataToPost) => {
+    console.log(dataToPost, "dataToPost")
+    const res = await axiosInstance.post("/tasks", dataToPost);
+    return res.data;
+  };
+
+  const UpdateCard = async (dataToUpdate) => {
+    console.log(dataToUpdate, "dataToUpdate")
+    const res = await axiosInstance.patch(`/tasks/${selectedCard?.id}`, dataToUpdate);
+    return res.data;
+  };
+
+  const {
+    isLoading,
+    error,
+    mutate: createTask,
+  } = useMutation(selectedCard?.id ? UpdateCard : SubmitCard, {
+    onError: (err) => console.log("The error", err),
+    onSuccess: (data) => {
+      console.log(data, "sucess")
+      if (!selectedCard?.id) {
+
+        const newCard = state
+        dispatch(addCard(newCard))
+        toggleVisibility(undefined);
+
+      }
+
+      const updatedCard = {
+        ...selectedCard,
+        state
+      }
+
+      dispatch(updateOneCard(updatedCard))
+      toggleVisibility(undefined);
+    },
+  });
+
+
+
+  function handleChange(event: { target: { name: string; value: string } }) {
+    console.log(event.target.name, "onchange")
+    setState((prevState) => ({
+      ...prevState,
+      [event.target.name]: event.target.value,
+    }));
+  }
+
+
 
   const handleCloseModal = () => {
     toggleVisibility(undefined);
-    setTitle(undefined);
-    setDescription(undefined);
-    setErrorMessage(undefined);
+    setState((prevState) => ({
+      ...prevState,
+      name: '',
+      description: ''
+    }));
+    setErrorMessage1('');
+    setErrorMessage2('');
+
   }
 
 
@@ -85,19 +150,30 @@ const Modal: React.FC<ModalProps> = ({ visible }) => {
         <img src={CloseIcon} alt="Gray X icon" onClick={handleCloseModal} />
 
         <h3>Title</h3>
-        <Input value={name} onChange={(e) => setTitle(e.target.value)} minLength={1} maxLength={50} containsError={!!errorMessage} />
-        {errorMessage && (
-          <ErrorMessage>{errorMessage}</ErrorMessage>
+        <Input name="name" value={state.name} onChange={handleChange} minLength={1} maxLength={50} />
+        {errorMessage1 && (
+          <ErrorMessage>{errorMessage1}</ErrorMessage>
         )}
 
         <h3>Description</h3>
         <MultilineInput
+          name="description"
           aria-multiline
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          value={state.description}
+          onChange={handleChange}
           maxLength={300}
+
         />
-        <Button type='button' onClick={handleSave}>{selectedCard ? 'Save Changes' : 'Add Card'}</Button>
+        {errorMessage2 && (
+          <ErrorMessage>{errorMessage2}</ErrorMessage>
+        )}
+        {isLoading ?
+          <StyledLoader style={{ marginLeft: "30%" }} color="#556270" />
+          : <Button type='button' onClick={handleSave}>{selectedCard ? 'Save Changes' : 'Add Card'}</Button>
+
+        }
+
+        {error && <div style={{ color: 'red' }}>{error}</div>}
 
       </ModalContent>
     </Container>
