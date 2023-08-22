@@ -1,6 +1,7 @@
 export default {
   moduleNameMapper: {
     '^express-session$': 'express-session',
+    'src/(.*)': '<rootDir>/src/$1',
   },
   moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: '.',

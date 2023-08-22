@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -157,5 +161,43 @@ export class ProjectsService {
         task: true,
       },
     });
+  }
+
+  async assignProjectToUser(projectId: number, userid: number) {
+    // add the userid to project users list
+    try {
+      const project = await this.prisma.project.update({
+        where: { id: projectId },
+        data: { users: { connect: { id: userid } } },
+        select: {
+          tasks: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+
+      if (project.tasks.length) {
+        // assign all tasks to this user
+        const userTasksToCreate = project.tasks.map(({ id }) => {
+          return {
+            userId: userid,
+            taskId: id,
+          };
+        });
+        const userTasks = await this.prisma.userTask.createMany({
+          data: userTasksToCreate,
+        });
+
+        return {
+          userTasks,
+          description: 'Project assigned successfully',
+        };
+      }
+    } catch (error) {
+      // console.error('Error assigning project to user:', error.message);
+      throw new BadRequestException('Error assigning project to user');
+    }
   }
 }
