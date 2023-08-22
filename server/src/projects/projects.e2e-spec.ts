@@ -269,6 +269,13 @@ describe('ProjectsController (e2e)', () => {
           .withCookies('$S{authcookie}')
           .expectStatus(200);
 
+        // this will list the details of the project. it will have the tasks also
+        await pactum
+          .spec()
+          .get(`/projects/$S{projectId}`)
+          .withCookies('$S{authcookie}')
+          .expectStatus(200);
+
         // assign these tasks to the user
         // await pactum
         //   .spec()

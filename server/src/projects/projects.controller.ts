@@ -127,18 +127,21 @@ export class ProjectsController {
     return this.projectsService.assignProjectToUser(projectId, user.id);
   }
 
-  @ApiOperation({ summary: 'Assign task to the user of this project' })
-  @ApiOkResponse({
-    description: 'Task assigned successfully',
-    type: UserTaskDto,
-  })
-  @Post(':id/mytasks')
-  assignTaskToUser(
-    @Body() assignUserToTaskDto: AssignUserToTaskDto,
-    @CurrentUser() user: User,
-  ) {
-    return this.userTasksService.assignTaskToUser(assignUserToTaskDto, user.id);
-  }
+  // @ApiOperation({
+  //   summary: 'Assign task to the user of this project',
+  //   deprecated: true,
+  // })
+  // @ApiOkResponse({
+  //   description: 'Task assigned successfully',
+  //   type: UserTaskDto,
+  // })
+  // @Post(':id/mytasks')
+  // assignTaskToUser(
+  //   @Body() assignUserToTaskDto: AssignUserToTaskDto,
+  //   @CurrentUser() user: User,
+  // ) {
+  //   return this.userTasksService.assignTaskToUser(assignUserToTaskDto, user.id);
+  // }
 
   @ApiOperation({ summary: 'Get tasks of the user of this project' })
   @ApiOkResponse({
