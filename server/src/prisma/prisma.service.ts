@@ -15,12 +15,14 @@ export class PrismaService extends PrismaClient {
   }
 
   cleanDb() {
+    if (process.env.NODE_ENV === 'production') return;
     return this.$transaction([
       this.category.deleteMany(),
       this.tag.deleteMany(),
       this.task.deleteMany(),
       this.project.deleteMany(),
       this.user.deleteMany(),
+      this.userTask.deleteMany(),
     ]);
   }
   createWithUser(entity: string, data: any, userId: number) {
@@ -30,11 +32,3 @@ export class PrismaService extends PrismaClient {
     });
   }
 }
-
-// @Injectable()
-// export abstract class BaseService extends PrismaService {
-//   constructor(private readonly prismaService: PrismaService) {
-//     super({});
-//   }
-
-// }

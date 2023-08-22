@@ -35,6 +35,7 @@ import { UpdateTaskStatusDto } from '../usertasks/dto/updateTaskStatus.dto';
 import { UsertasksService } from '../usertasks/usertasks.service';
 import { UserTaskDto } from '../usertasks/dto/UserTask.dto';
 import { GetUserTaskDto } from '../usertasks/dto/GetUserTasks.dto';
+import { AssignProjectDto } from './assignProject.dto';
 
 @ApiTags('Projects') // This adds a tag to the Swagger documentation for the controller
 @UseGuards(AuthenticatedGuard)
@@ -106,6 +107,24 @@ export class ProjectsController {
   @Delete(':id')
   remove(@GetIdFromParams('id') id: GetByIdDto) {
     return this.projectsService.remove(+id);
+  }
+
+  @ApiOperation({
+    summary: 'Assign project to current user ',
+    description:
+      'Use this api to assign the project and subsequently all tasks of this project to current user',
+  })
+  @ApiOkResponse({
+    description: 'Project assigned successfully',
+    type: AssignProjectDto,
+  })
+  @Post(':id/assign')
+  @HttpCode(HttpStatus.OK)
+  assignProjectToUser(
+    @Param('id', ParseIntPipe) projectId: number,
+    @CurrentUser() user: User,
+  ) {
+    return this.projectsService.assignProjectToUser(projectId, user.id);
   }
 
   @ApiOperation({ summary: 'Assign task to the user of this project' })
