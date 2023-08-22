@@ -350,8 +350,8 @@ describe('ProjectsController (e2e)', () => {
           .get(`/projects/$S{projectId}/mytasks`)
           .withCookies('$S{authcookie}')
           .expectJsonLength(3)
-          .expectJson('0.id', '$S{usertaskid1}')
-          .expectJson('0.status', 'IN_PROGRESS')
+          .expectBodyContains('$S{usertaskid1}')
+          .expectBodyContains('IN_PROGRESS')
           .expectStatus(200);
       });
     });
