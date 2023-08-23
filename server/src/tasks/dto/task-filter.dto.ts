@@ -37,7 +37,7 @@ export class TaskFilterDto {
 
   @ApiProperty({
     required: false,
-    description: 'Filter by user ID',
+    description: 'Filter by PROJECT ID',
     type: Number,
   })
   @IsOptional()
