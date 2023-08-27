@@ -27,7 +27,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "pretest:e2e": "npm run db:test:restart",
-    "test:e2e": "dotenv -e .env.test -- jest --no-cache",
+    "test:e2e": "dotenv -e .env.test -- jest  --forceExit --no-cache --detectOpenHandles",
     "test:e2e:watch": "dotenv -e .env.test -- jest --forceExit  --watchAll --no-cache --detectOpenHandles",
     "migrate:dev": "npx prisma migrate dev",
     "migrate:test": "dotenv -e .env.test -- npx prisma migrate dev",

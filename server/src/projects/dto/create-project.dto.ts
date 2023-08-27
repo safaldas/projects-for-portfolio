@@ -25,15 +25,6 @@ export class CreateProjectDto {
   description: string;
 
   @ApiPropertyOptional({
-    description: 'An array of task IDs to associate with the project',
-    type: [Number],
-  })
-  @IsArray()
-  @IsOptional()
-  @IsNumber({}, { each: true })
-  tasks?: number[];
-
-  @ApiPropertyOptional({
     description: 'An array of user IDs to associate with the project',
     type: [Number],
   })

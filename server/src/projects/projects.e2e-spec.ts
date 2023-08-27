@@ -40,6 +40,20 @@ describe('ProjectsController (e2e)', () => {
         .withBody({ name: 'Tag 1' })
         .stores('tagid', 'id')
         .expectStatus(201);
+      await pactum
+        .spec()
+        .post('/projects')
+        .withCookies('$S{authcookie}')
+        .withBody({
+          name: 'My Awesome Project',
+          description: 'This project will do something really cool!',
+          users: [10],
+          categories: [10],
+          tags: [10],
+        })
+        .stores('dprojectid', 'id')
+        .inspect()
+        .expectStatus(400);
       return pactum
         .spec()
         .post('/projects')
