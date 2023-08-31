@@ -1,19 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import * as AlertDialog from '@radix-ui/react-alert-dialog';
 import './styles.css';
-import { List } from '@phork/phorkit'
-import mockCards from '../../data/cards'
+import { Accordion, List, Rhythm } from '@phork/phorkit'
+// import mockCards from '../../data/cards'
 
 
 const AlertDialogDemo = (props) => {
   const { content } = props;
   const [tasks, setTasks] = useState([]);
+  const task = content?.tasks
+
+
+  const description = (text) => {
+    return <Rhythm >{text}</Rhythm>
+
+  }
 
   const modalData = () => {
-    for (let i = 0; i < mockCards.length; i++) { // changed
+    for (let i = 0; i < task.length; i++) { // changed
       const card = {}
-      card.id = mockCards[i].id;
-      card.label = mockCards[i].name;
+      card.content = description(task[i].description) //only for accordon if list not needed
+      card.id = task[i].id;
+      card.label = task[i].name;
       tasks.push(card);
     }
     return tasks
@@ -35,11 +43,10 @@ const AlertDialogDemo = (props) => {
           <AlertDialog.Description className="AlertDialogDescription">{content?.name}</AlertDialog.Description>
           <AlertDialog.Title className="AlertDialogTitle"> Description</AlertDialog.Title>
           <AlertDialog.Description className="AlertDialogDescription">{content?.description}</AlertDialog.Description>
-          <AlertDialog.Title className="AlertDialogTitle"> TODO Items</AlertDialog.Title>
 
           <div className="AlertDialogDescription">
 
-            <List
+            {/* <List
               color="primary"
               items={tasks}
               size="medium"
@@ -49,7 +56,14 @@ const AlertDialogDemo = (props) => {
               }}
               inactive
               variant="bordered"
+            /> */}
+
+            <Accordion
+              items={tasks}
+              orientation="vertical"
+              variant="primary"
             />
+
           </div>
           <div style={{ display: 'flex', gap: 25, justifyContent: 'center' }}>
             <AlertDialog.Cancel asChild>

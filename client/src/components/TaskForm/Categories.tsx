@@ -19,6 +19,7 @@ interface AwesomeInputProps {
 const Categories: React.FC<AwesomeInputProps> = React.forwardRef((props, ref) => {
     const [page] = useState(1);
     const [limit] = useState(5);
+    const [options, setOptions] = useState([])
 
     function handleCategoryChange(category: any) {
         props.setCategory(category)
@@ -35,8 +36,12 @@ const Categories: React.FC<AwesomeInputProps> = React.forwardRef((props, ref) =>
     } = useMutation(createNewCategory, {
         onError: (err) => console.log("The error", err),
         onSuccess: (dataVal) => {
-            console.log(dataVal);
-        },
+            console.log(dataVal, "sucess");
+            console.log(options)
+            setOptions({ ...options, dataVal })
+            filterCategory();
+        }
+
     });
     const handleCreateCategories = (category: any) => {
         createCategories({ id: uuidv4(), name: category });
@@ -53,13 +58,16 @@ const Categories: React.FC<AwesomeInputProps> = React.forwardRef((props, ref) =>
                 },
             })
             const resData = await response.data;
-            const dataVal = resData?.data
-            const data = dataVal?.map(function (row) {
+            const dataRecived = resData?.data
+            const data = dataRecived?.map(function (row) {
 
                 return { id: row.id, label: row.name, value: row.id }
             })
+            console.log("hittt here")
+            setOptions(data)
 
             return data;
+
         }
         catch (err) {
             console.log(err)
@@ -68,7 +76,7 @@ const Categories: React.FC<AwesomeInputProps> = React.forwardRef((props, ref) =>
 
     const promiseOptions = (inputValue: string) =>
         new Promise<CategoriesOption[]>((resolve) => {
-            console.log("hittt")
+            console.log("hittt", options)
             resolve(filterCategory(inputValue));
         });
 
@@ -83,6 +91,7 @@ const Categories: React.FC<AwesomeInputProps> = React.forwardRef((props, ref) =>
                 loadOptions={promiseOptions}
                 onChange={handleCategoryChange}
                 onCreateOption={handleCreateCategories}
+                options={options}
 
             />
         </>

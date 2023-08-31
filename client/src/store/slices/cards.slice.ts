@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-import mockCards from "../../data/cards";
 import ICard from "../../interfaces/ICard";
 
 interface CardsSliceState {
@@ -8,8 +7,9 @@ interface CardsSliceState {
   searchText: string
 }
 
+
 const initialState: CardsSliceState = {
-  cards: mockCards,
+  cards: [],
   searchText: ''
 }
 
@@ -18,21 +18,27 @@ export const cardsSlice = createSlice({
   initialState,
   reducers: {
     setCards: (state, action) => {
+      console.log(action,"set")
+
       state.cards = action.payload
     },
     setSearchText: (state, action) => {
       state.searchText = action.payload
     },
     addCard: (state, action) => {
+      console.log(action,"add")
+
       const card = action.payload
 
       state.cards = [...state.cards, card]
     },
     updateOneCard: (state, action) => {
       const cardId = action.payload.id;
+      console.log(action,"update")
 
       const updatedCards = state.cards.map(card => {
         if (card.id === cardId) return action.payload;
+        
         else return card;
       })
 

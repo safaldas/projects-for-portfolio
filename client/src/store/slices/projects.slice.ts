@@ -28,11 +28,15 @@ export const projectSlice = createSlice({
 
       state.project = action.payload
       console.log(action,"in red pro")
+    },
+    editProject: (state, action) => {
+
+      state.project = action.payload
     }
 
   }
 })
 
-export const { setIsSubmitted, addProject, setPage} = projectSlice.actions;
+export const { setIsSubmitted, addProject, setPage, editProject} = projectSlice.actions;
 
 export default projectSlice.reducer;

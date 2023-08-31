@@ -52,9 +52,8 @@ const TaskForm = (props) => {
     if (tags !== undefined && category !== undefined) {
       let result = tags?.map(a => a?.id);
       let catArr = [];
-      const user = JSON.parse(localStorage.getItem('user'))
       catArr.push(category?.id)
-      createProject({ name: state.name, description: state.description, categories: catArr, tags: result, users: [user?.id] });
+      createProject({ name: state.name, description: state.description, categories: catArr, tags: result });
     }
   };
 

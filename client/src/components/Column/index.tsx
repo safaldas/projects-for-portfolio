@@ -16,7 +16,6 @@ interface ColumnProps {
 // const status={}
 
 const Column: React.FC<ColumnProps> = ({ status, cards, index }) => {
-  console.log(status, "status")
   return (
     <Container isfirstcolumn={index === 0}>
       <h2>{status}</h2>

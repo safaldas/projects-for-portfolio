@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import * as Form from "@radix-ui/react-form";
 import "./style.css";
-import { colourOptions } from "../../data/dropData";
 import AsyncCreatable from "react-select/async-creatable";
 import { useMutation } from "@tanstack/react-query";
 import axiosInstance from "../../util/axios-instance";
@@ -37,7 +36,6 @@ const Tags: React.FC<AwesomeInputProps> = React.forwardRef((props, ref) => {
         onError: (err) => console.log("The error", err),
         onSuccess: (data) => {
             console.log(data);
-            filterTags("")
         },
     });
     const handleCreateTags = (tag) => {

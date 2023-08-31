@@ -4,7 +4,7 @@ import { SCREEN_BREAKPOINTS } from "../../constants/breakpoints";
 export const Container = styled.div` 
     width: fit-content;
     padding: 5px 15px;
-    margin: 2rem 0 0 10rem;
+    margin: 2rem 0 0 25rem;
     border-radius: 5px;
     justify-items: center;
     align-items: center;

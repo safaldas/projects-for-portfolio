@@ -1,16 +1,19 @@
 
-import { DragDropContext, DropResult } from 'react-beautiful-dnd';
+import { DragDropContext } from 'react-beautiful-dnd';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import ICard from '../../interfaces/ICard';
-import IStatus from '../../interfaces/IStatus';
-import IColumn from '../../interfaces/IColumn';
+
+import { useQuery } from '@tanstack/react-query';
+import { StyledLoader } from '@phork/phorkit';
+import { useDispatch, useSelector } from 'react-redux';
+
+
+import axiosInstance from "../../util/axios-instance";
 import Column from '../../components/Column';
 import Modal from '../../components/Modal';
 import { useModal } from '../../hooks/useModal';
-import { useDispatch, useSelector } from 'react-redux';
 import { Container, Header, StatusesColumnsContainer } from './styles';
 import { setCards } from '../../store/slices/cards.slice';
-import { ButtonAddCard } from '../../components/ButtonAddCard';
 import GlobalStyle from '../../styles/global';
 
 
@@ -18,40 +21,53 @@ const KanbanPage = () => {
 
   const { cards } = useSelector((state => state.cards));
   const { visible } = useModal();
-
-  console.log(cards, "cards")
+  const { projectId } = useParams()
+  const navigateTo = useNavigate()
 
   const col = ['TODO', 'IN_PROGRESS', 'COMPLETED']
 
 
-  const interm = {};
+
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ["project"],
+    queryFn: async () => {
+      const response = await axiosInstance.get(`/projects/${projectId}/mytasks`);
+
+      const data = await response.data;
+      dispatch(setCards(data))
+
+      return data;
+
+    },
+  });
+
+  const sortedCards = {};
 
   col.forEach((each) => {
-    console.log(each, "each")
-    interm[`${each}`] = [];
+    sortedCards[`${each}`] = [];
   })
 
-
-  cards.forEach((each) => {
+  cards?.forEach((each) => {
     if (col.indexOf(each.status) != -1)
-      console.log(each.status, "each.status")
-    interm[`${each.status}`].push(each)
+      sortedCards[`${each.status}`].push(each)
 
   })
 
 
   const finalArray: { id: number; data: any; status: string; }[] = []
-  Object.keys(interm).forEach((each, i) => {
-    finalArray.push({ id: i, data: interm[`${each}`], status: each })
+  Object.keys(sortedCards).forEach((each, i) => {
+    finalArray.push({ id: i, data: sortedCards[`${each}`], status: each })
   })
 
 
 
   const dispatch = useDispatch();
 
-  const onDragEnd = (result: DropResult) => {
+
+  const onDragEnd = (result) => {
+
     const { destination, source, draggableId } = result;
-    console.log(destination, source, draggableId)
+
 
     if (!destination) return;
 
@@ -60,30 +76,25 @@ const KanbanPage = () => {
       destination.index === source.index
     ) return;
 
-    const updatedCards: ICard[] = cards.map(card => {
-      if (card.id === draggableId) {
+    cards.map(async card => {
+      if (card.id == draggableId) {
+        try {
+          const response = await axiosInstance.patch(`/projects/${projectId}/mytasks/${card.taskId}/status`, {
 
-        const status: IStatus = destination.droppableId as IStatus;
-
-        return {
-          ...card,
-          status
+            userTaskId: card.id,
+            status: destination.droppableId
+          })
+          const dataVal = await response.data;
+          refetch();
+          return dataVal;
         }
-      } else return card;
+        catch (err) {
+          console.log(err)
+        }
+
+      }
     })
 
-    const sourceColumn: IColumn = finalArray.find(column => column.status === source.droppableId);
-    const destinationColumn: IColumn = finalArray.find(column => column.status === destination.droppableId);
-
-    //Moving cards in the same column
-    if (sourceColumn === destinationColumn) {
-
-      dispatch(setCards(updatedCards))
-
-      return
-    }
-
-    dispatch(setCards(updatedCards))
 
   }
 
@@ -91,34 +102,41 @@ const KanbanPage = () => {
   return (
     <>
       <GlobalStyle />
+      {isLoading ? <StyledLoader style={{ marginLeft: "30%" }} color="#556270" /> :
+        <>
+          {data ?
+            <Container>
+              <Header>
+                <h1>BOARD</h1>
+                <button style={{ backgroundColor: '#808088' }} onClick={() => navigateTo('/all')}>{'<<Back'}</button>
 
-      <Container>
-        <Header>
-          <h1>Project Title</h1>
+              </Header>
 
-        </Header>
-
-        <StatusesColumnsContainer>
-          <DragDropContext onDragEnd={onDragEnd}>
-            {finalArray.map((column, index) => {
+              <StatusesColumnsContainer>
+                <DragDropContext onDragEnd={onDragEnd}>
+                  {finalArray.map((column, index) => {
 
 
-              return (
-                <Column
-                  key={column.id}
-                  index={index}
-                  status={column.status}
-                  cards={column.data}
-                />
-              )
-            })}
-          </DragDropContext>
-        </StatusesColumnsContainer>
-        <ButtonAddCard />
-      </Container>
-      <Modal visible={visible} />
+                    return (
+                      <Column
+                        key={column.id}
+                        index={index}
+                        status={column.status}
+                        cards={column.data}
+                      />
+                    )
+                  })}
+                </DragDropContext>
+              </StatusesColumnsContainer>
+              {/* <ButtonAddCard /> */}
+            </Container>
+            : <div>No data Found</div>}
+
+          <Modal visible={visible} />
+        </>}
     </>
   )
 }
 
 export default KanbanPage;
+

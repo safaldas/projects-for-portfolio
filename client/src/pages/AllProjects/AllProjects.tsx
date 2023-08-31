@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useNavigate } from "react-router-dom";
 
@@ -18,18 +18,27 @@ import { setPage } from '../../store/slices/projects.slice';
 
 
 
+
 const AllProjects = () => {
 
   const dispatch = useDispatch();
 
   const navigateTo = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user'))
   const project = useSelector((state => state.project));
   const isSubmitted = project?.isSubmitted;
   let page = project?.page;
+  const [isAdmin, setIsAdmin] = useState(false)
+  const user = JSON.parse(localStorage.getItem('user'))
 
 
-  const { data, isLoading, error } = useQuery({
+  // const users = useSelector((state => state.users));
+  // console.log(users, "isAdmin", project)
+
+
+
+  const [projectId, setProjectId] = useState();
+
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["projects", page, isSubmitted],
     queryFn: async () => {
       const response = await axiosInstance.get("/projects", {
@@ -43,13 +52,13 @@ const AllProjects = () => {
     },
   });
 
-  const Submit = async (dataToPost) => {
 
-    if (dataToPost?.id) {
-      const dataArr = dataToPost?.users
-      const userIdArr = dataArr?.map(a => a?.id);
-      const newArr = [...userIdArr, user?.id]
-      const res = await axiosInstance.patch(`/projects/${dataToPost?.id}`, { users: newArr });
+  const Assign = async (dataToPost) => {
+    console.log(dataToPost, "dataToPost")
+
+    if (dataToPost) {
+      const res = await axiosInstance.post(`/projects/${dataToPost}/assign`);
+      console.log(res, "ress")
       return res.data;
     }
   };
@@ -57,21 +66,42 @@ const AllProjects = () => {
   const {
     isError,
     mutate: updateProject,
-  } = useMutation(Submit, {
+  } = useMutation(Assign, {
     onError: (err) => console.log("The error", err),
-    onSuccess: (data) => {
-      navigateTo(`/board/${data?.id}`)
+    onSuccess: (dataVal) => {
+      console.log(dataVal, "data")
+      refetch();
+      console.log(data, "assign data")
+      projectId && navigateTo(`/board/${projectId}`)
     },
   });
 
 
   const handleStart = (elem) => {
 
-    updateProject(elem);
+    console.log(elem, "elem")
+    if (elem.id) {
+      const userExist = elem.users.find((userCheck) => userCheck.id === user.id)
+      console.log(userExist, "userExist")
+      if (userExist) {
+        navigateTo(`/board/${elem.id}`)
+      } else {
+        setProjectId(elem.id)
+        updateProject(elem.id);
 
+
+      }
+
+    }
 
   };
 
+  const handleEdit = (elem) => {
+
+    console.log(elem, "elem")
+    navigateTo(`/edit/${elem?.id}`)
+
+  };
 
   const pageChange = (e: any, pageNo: React.SetStateAction<number>) => {
     dispatch(setPage(pageNo))
@@ -139,7 +169,9 @@ const AllProjects = () => {
                     </TextContainer>
                     <ButtonContainer >
                       <ViewModel content={task} />
-                      <Button onClick={() => handleStart(task)}>Start</Button>
+                      {isAdmin && <Button onClick={() => handleEdit(task)}>Edit</Button>}
+                      {!isAdmin && task?.tasks?.length && <Button onClick={() => handleStart(task)}> Start</Button>}
+
                     </ButtonContainer>
 
                   </Card>

@@ -1,0 +1,163 @@
+@import '@radix-ui/colors/black-alpha.css';
+@import '@radix-ui/colors/violet.css';
+@import '@radix-ui/colors/mauve.css';
+
+/* reset */
+.containerEdit{
+  font-family: system-ui;
+  width: 50vw;
+  height: 60vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 50px 300px;
+  
+
+}
+
+.containerModal{
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modalContent{
+  padding: 3rem;
+  min-height: 400px;
+  width: 600px;
+  background: #D3D3D3;
+  border-radius: 5px;
+  position: relative;
+
+  
+
+}
+.imgClose {
+  height: 15px;
+  width: 15px;
+  position: absolute;
+  right: 2rem;
+  top: 2rem;
+  cursor: pointer;
+}
+
+input,
+textarea,
+button {
+  all: unset;
+  box-sizing: border-box;
+}
+
+.FormRootEdit {
+  width: 100%;
+  margin-top: 50px;
+}
+
+.FormField {
+  display: grid;
+  margin-bottom: 10px;
+}
+
+.FormLabelEdit {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 35px;
+  color: black;
+}
+
+.FormMessage {
+  font-size: 13px;
+  color: #808080;
+  opacity: 0.8;
+}
+
+.listComp {
+  text-align: center;
+}
+
+.headBar {
+  text-align: center;
+}
+.heading {
+  display: inline;
+}
+.buttonRight {
+  display: inline-block;
+  background-color: #808080;
+  color: white;
+  float: right;
+  right: 10px;
+  top: 10px;
+  position: relative;
+}
+
+
+._1un17-lst{
+  position: inherit !important;
+
+}
+
+.Input,
+.Textarea {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+border: hsl(0, 0%, 80%) !important;
+  font-size: 15px;
+  color: black;
+  background-color: white !important;
+}
+
+.Input:focus,
+.Textarea:focus {
+  box-shadow: 0 0 0 2px black;
+}
+.Input::selection,
+.Textarea::selection {
+  background-color: white;
+  color: black;
+}
+
+.Input {
+  padding: 0 10px;
+  height: 35px;
+  line-height: 1;
+}
+
+.Textarea {
+  resize: none;
+  padding: 10px;
+}
+
+.Button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  padding: 0 15px;
+  font-size: 15px;
+  line-height: 1;
+  font-weight: 500;
+  height: 35px;
+  width: 100%;
+
+  background-color: #0000FF !important;
+  color: #fff !important;
+  box-shadow: 0 2px 10px var(--black-a7);
+}
+
+
+.Button:hover {
+  background-color: var(--mauve-3);
+}
+.Button:focus {
+  box-shadow: 0 0 0 2px black;
+}
