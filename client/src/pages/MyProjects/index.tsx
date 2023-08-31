@@ -2,25 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { Container, ListContainer, TextContainer, Button, ButtonContainer, NoData } from './style';
 import { Card, Typography, Pagination, StyledLoader } from '@phork/phorkit'
 import { useNavigate } from "react-router-dom";
-
-
-import Description from '../../components/Description/Description'
 import ToolBar from '../../components/ToolBar';
 
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "../../util/axios-instance";
 
+// import { useDispatch,useSelector } from 'react-redux';
+
 const MyProjects = () => {
 
   const navigateTo = useNavigate();
 
-  const [dataContent, getData] = useState([]);
-  // const [isAdmin, setisAdmin] = useState(true);
-  const [content, setContent] = useState();
   const [page, setPage] = useState(1)
   const user = JSON.parse(localStorage.getItem('user'))
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["projects", page],
     queryFn: async () => {
       const response = await axiosInstance.get("/projects", {
@@ -33,7 +29,6 @@ const MyProjects = () => {
       });
       const data = await response.data;
 
-      getData(data)
       return data;
     },
   });
@@ -42,6 +37,15 @@ const MyProjects = () => {
   const pageChange = (e: any, pageNo: React.SetStateAction<number>) => {
     setPage(pageNo)
   }
+
+  useEffect(() => {
+
+    if (error?.response?.status == '403') {
+
+      localStorage.clear();
+      navigateTo('/')
+    }
+  }, [error])
 
 
   return (
@@ -65,7 +69,6 @@ const MyProjects = () => {
                       marginBottom: "50px",
                       width: "25%"
                     }}
-                    onClick={() => setContent(task)}
                   >
                     <TextContainer>
                       <Typography

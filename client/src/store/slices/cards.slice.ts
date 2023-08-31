@@ -18,7 +18,6 @@ export const cardsSlice = createSlice({
   initialState,
   reducers: {
     setCards: (state, action) => {
-      console.log(action,"set")
 
       state.cards = action.payload
     },
@@ -26,7 +25,6 @@ export const cardsSlice = createSlice({
       state.searchText = action.payload
     },
     addCard: (state, action) => {
-      console.log(action,"add")
 
       const card = action.payload
 
@@ -34,7 +32,6 @@ export const cardsSlice = createSlice({
     },
     updateOneCard: (state, action) => {
       const cardId = action.payload.id;
-      console.log(action,"update")
 
       const updatedCards = state.cards.map(card => {
         if (card.id === cardId) return action.payload;

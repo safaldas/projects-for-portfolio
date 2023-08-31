@@ -36,8 +36,6 @@ const Categories: React.FC<AwesomeInputProps> = React.forwardRef((props, ref) =>
     } = useMutation(createNewCategory, {
         onError: (err) => console.log("The error", err),
         onSuccess: (dataVal) => {
-            console.log(dataVal, "sucess");
-            console.log(options)
             setOptions({ ...options, dataVal })
             filterCategory();
         }
@@ -63,7 +61,6 @@ const Categories: React.FC<AwesomeInputProps> = React.forwardRef((props, ref) =>
 
                 return { id: row.id, label: row.name, value: row.id }
             })
-            console.log("hittt here")
             setOptions(data)
 
             return data;
@@ -76,7 +73,6 @@ const Categories: React.FC<AwesomeInputProps> = React.forwardRef((props, ref) =>
 
     const promiseOptions = (inputValue: string) =>
         new Promise<CategoriesOption[]>((resolve) => {
-            console.log("hittt", options)
             resolve(filterCategory(inputValue));
         });
 

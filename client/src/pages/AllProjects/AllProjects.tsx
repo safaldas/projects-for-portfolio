@@ -19,21 +19,20 @@ import { setPage } from '../../store/slices/projects.slice';
 
 
 
+
 const AllProjects = () => {
 
   const dispatch = useDispatch();
 
   const navigateTo = useNavigate();
   const project = useSelector((state => state.project));
+
+  // const users = useSelector((state => state.users));
+
   const isSubmitted = project?.isSubmitted;
   let page = project?.page;
   const [isAdmin, setIsAdmin] = useState(false)
   const user = JSON.parse(localStorage.getItem('user'))
-
-
-  // const users = useSelector((state => state.users));
-  // console.log(users, "isAdmin", project)
-
 
 
   const [projectId, setProjectId] = useState();
@@ -54,11 +53,9 @@ const AllProjects = () => {
 
 
   const Assign = async (dataToPost) => {
-    console.log(dataToPost, "dataToPost")
 
     if (dataToPost) {
       const res = await axiosInstance.post(`/projects/${dataToPost}/assign`);
-      console.log(res, "ress")
       return res.data;
     }
   };
@@ -69,9 +66,7 @@ const AllProjects = () => {
   } = useMutation(Assign, {
     onError: (err) => console.log("The error", err),
     onSuccess: (dataVal) => {
-      console.log(dataVal, "data")
       refetch();
-      console.log(data, "assign data")
       projectId && navigateTo(`/board/${projectId}`)
     },
   });
@@ -79,10 +74,8 @@ const AllProjects = () => {
 
   const handleStart = (elem) => {
 
-    console.log(elem, "elem")
     if (elem.id) {
       const userExist = elem.users.find((userCheck) => userCheck.id === user.id)
-      console.log(userExist, "userExist")
       if (userExist) {
         navigateTo(`/board/${elem.id}`)
       } else {
@@ -98,7 +91,6 @@ const AllProjects = () => {
 
   const handleEdit = (elem) => {
 
-    console.log(elem, "elem")
     navigateTo(`/edit/${elem?.id}`)
 
   };

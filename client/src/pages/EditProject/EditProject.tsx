@@ -26,7 +26,6 @@ const TaskForm = () => {
     const { visible, toggleVisibility } = useModal();
 
 
-
     const projectInfo = useQuery({
         queryKey: ["projects"],
         queryFn: async () => {
@@ -57,7 +56,6 @@ const TaskForm = () => {
     } = useMutation(Submit, {
         onError: (err) => console.log("The error", err),
         onSuccess: (data) => {
-            console.log(data)
             dispatch(editProject(data))
             dispatch(setIsSubmitted(true))
             projectInfo.refetch()
@@ -95,7 +93,14 @@ const TaskForm = () => {
         toggleVisibility(selectedTask[0]);
     };
 
+    useEffect(() => {
 
+        if (projectInfo?.error?.response?.status == '403') {
+
+            localStorage.clear();
+            navigateTo('/')
+        }
+    }, [error])
 
 
     return (
@@ -103,7 +108,7 @@ const TaskForm = () => {
             <div className="headBar">
                 <h1 className="heading">Edit Project</h1>
 
-                <button className="buttonRight" onClick={() => navigateTo('/all')}>{'<<Back'}</button>
+                <button className="buttonRight" onClick={() => navigateTo(-1)}>{'<<Back'}</button>
 
             </div>
 

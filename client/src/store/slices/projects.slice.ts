@@ -27,7 +27,6 @@ export const projectSlice = createSlice({
     addProject: (state, action) => {
 
       state.project = action.payload
-      console.log(action,"in red pro")
     },
     editProject: (state, action) => {
 

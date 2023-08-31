@@ -53,20 +53,17 @@ const AddTaskForm = ({ visible }) => {
   }, [selectedCard, visible])
 
   const handleSave = () => {
-    // console.log(state, "statecon");
 
     createTask(state);
 
   }
 
   const SubmitCard = async (dataToPost) => {
-    // console.log(dataToPost, "dataToPost")
     const res = await axiosInstance.post("/tasks", dataToPost);
     return res.data;
   };
 
   const UpdateCard = async (dataToUpdate) => {
-    // console.log(dataToUpdate, "dataToUpdate")
     const res = await axiosInstance.patch(`/tasks/${selectedCard?.id}`, dataToUpdate);
     return res.data;
   };
@@ -78,7 +75,6 @@ const AddTaskForm = ({ visible }) => {
   } = useMutation(selectedCard?.id ? UpdateCard : SubmitCard, {
     onError: (err) => console.log("The error", err),
     onSuccess: (data) => {
-      // console.log(data, "sucess")
       if (!selectedCard?.id) {
 
         const newCard = state

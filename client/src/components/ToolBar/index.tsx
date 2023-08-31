@@ -23,7 +23,6 @@ const ToolBar = (props) => {
     queryFn: async () => {
       const response = await axios.get('http://localhost:3333/auth/logout');
       const data = await response.data;
-      console.log(data?.msg)
       data?.msg === 'The user session has ended' && navigateTo('/')
       return data;
     },
@@ -33,7 +32,6 @@ const ToolBar = (props) => {
 
 
   const handleLogout = (event) => {
-    console.log(cookies)
     removeCookie(["connect.sid"], "/")
     event.preventDefault();
     setIsClicked(true)

@@ -19,6 +19,7 @@ import AllProjects from './pages/AllProjects/AllProjects';
 import MyProjects from './pages/MyProjects/index';
 import SignUp from './pages/SignUp/SignUp';
 import EditProject from './pages/EditProject/EditProject';
+import axios from 'axios';
 
 
 

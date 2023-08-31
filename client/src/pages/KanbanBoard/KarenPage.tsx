@@ -15,6 +15,7 @@ import { useModal } from '../../hooks/useModal';
 import { Container, Header, StatusesColumnsContainer } from './styles';
 import { setCards } from '../../store/slices/cards.slice';
 import GlobalStyle from '../../styles/global';
+import { useEffect } from 'react';
 
 
 const KanbanPage = () => {
@@ -40,6 +41,16 @@ const KanbanPage = () => {
 
     },
   });
+
+  useEffect(() => {
+
+    if (error?.response?.status == '403') {
+
+      localStorage.clear();
+      navigateTo('/')
+    }
+  }, [error])
+
 
   const sortedCards = {};
 
@@ -108,7 +119,7 @@ const KanbanPage = () => {
             <Container>
               <Header>
                 <h1>BOARD</h1>
-                <button style={{ backgroundColor: '#808088' }} onClick={() => navigateTo('/all')}>{'<<Back'}</button>
+                <button style={{ backgroundColor: '#808088' }} onClick={() => navigateTo(-1)}>{'<<Back'}</button>
 
               </Header>
 

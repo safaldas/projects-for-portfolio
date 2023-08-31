@@ -28,14 +28,12 @@ const TaskForm = (props) => {
   };
 
   const {
-    isSuccess,
     isLoading,
     error,
     mutate: createProject,
   } = useMutation(Submit, {
     onError: (err) => console.log("The error", err),
     onSuccess: (data) => {
-      console.log(data)
       dispatch(addProject(data))
       dispatch(setIsSubmitted(true))
       setState({
