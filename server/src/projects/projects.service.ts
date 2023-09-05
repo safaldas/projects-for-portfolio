@@ -26,14 +26,6 @@ export class ProjectsService {
         createdBy: user.id,
       };
 
-      if (createProjectDto.tasks) {
-        projectData.tasks = {
-          create: createProjectDto.tasks.map((taskName) => ({
-            name: taskName,
-          })),
-        };
-      }
-
       if (createProjectDto.users) {
         projectData.users = {
           connect: createProjectDto.users.map((userId) => ({ id: userId })),
@@ -66,8 +58,8 @@ export class ProjectsService {
 
       return project;
     } catch (error) {
-      console.error('Error creating project:', error);
-      throw error; // Rethrow the error for proper error handling
+      // console.error('Error creating project:', error);
+      throw new BadRequestException('Invalid value'); // Rethrow the error for proper error handling
     }
   }
 
@@ -158,7 +150,12 @@ export class ProjectsService {
         },
       },
       include: {
-        task: true,
+        task: {
+          select: {
+            name: true,
+            description: true,
+          },
+        },
       },
     });
   }

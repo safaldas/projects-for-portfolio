@@ -18,9 +18,12 @@ export type ErrorCodesStatusMapping = {
 };
 
 /**
- * {@link PrismaClientExceptionFilter} catches {@link Prisma.PrismaClientKnownRequestError} exceptions.
+ * {@link PrismaClientExceptionFilter} catches {@link Prisma.PrismaClientKnownRequestError}  and {@link Prisma.PrismaClientValidationError} exceptions.
  */
-@Catch(Prisma?.PrismaClientKnownRequestError)
+@Catch(
+  Prisma?.PrismaClientKnownRequestError,
+  Prisma.PrismaClientValidationError,
+)
 export class PrismaClientExceptionFilter extends BaseExceptionFilter {
   /**
    * default error codes mapping
@@ -66,8 +69,25 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
    * @param host
    * @returns
    */
-  catch(exception: Prisma.PrismaClientKnownRequestError, host: ArgumentsHost) {
-    return this.catchClientKnownRequestError(exception, host);
+  catch(
+    exception:
+      | Prisma.PrismaClientKnownRequestError
+      | Prisma.PrismaClientValidationError,
+    host: ArgumentsHost,
+  ) {
+    if (exception instanceof Prisma.PrismaClientValidationError) {
+      // Handle Prisma validation errors here
+      const statusCode = HttpStatus.BAD_REQUEST;
+      const invalidArgument = this.extractValidationError(exception.message);
+
+      return super.catch(
+        new HttpException(
+          { statusCode, message: `Invalid argument: '${invalidArgument}'` },
+          statusCode,
+        ),
+        host,
+      );
+    } else return this.catchClientKnownRequestError(exception, host);
   }
 
   private catchClientKnownRequestError(
@@ -103,6 +123,17 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
       .substring(shortMessage.indexOf('\n'))
       .replace(/\n/g, '')
       .trim();
+  }
+
+  private extractValidationError(errorMessage: string): string | null {
+    const regex = /Unknown argument `(\w+)`\./; // Regular expression to match the specific line
+    const match = errorMessage.match(regex);
+
+    if (match && match[1]) {
+      return match[1]; // Extract the argument name
+    }
+
+    return null; // Return null if no match is found
   }
 }
 

@@ -20,12 +20,15 @@ export class PaginationService<T> {
     const where = filterDto
       ? await this.buildWhereFilter(filterDto, model)
       : {};
-
+    const orderBy = filterDto
+      ? await this.buildOrderByFilter(filterDto, model)
+      : {};
     const data = await this.prisma[model].findMany({
       skip,
       take: limit,
       where,
       include,
+      orderBy,
     });
 
     const totalItems = await this.prisma[model].count({ where });
@@ -40,6 +43,16 @@ export class PaginationService<T> {
     };
   }
 
+  private async buildOrderByFilter(filterDto: FilterDto, model: string) {
+    const orderBy: any = {};
+    if (filterDto.orderByAsc) {
+      orderBy[filterDto.orderByAsc] = 'asc';
+    }
+    if (filterDto.orderByDesc) {
+      orderBy[filterDto.orderByDesc] = 'desc';
+    }
+    return orderBy;
+  }
   private async buildWhereFilter(filterDto: FilterDto, model: string) {
     // Build the where object based on the properties in the FilterDto
     const where: any = {};

@@ -5,15 +5,16 @@ import {
   Logger,
   ValidationPipe,
 } from '@nestjs/common';
-import { AppModule } from './../src/app.module';
+import { AppModule } from 'src/app.module';
 import { HttpAdapterHost } from '@nestjs/core';
-import { PrismaClientExceptionFilter } from '../src/prisma/prisma-client-exception.filter';
+import { PrismaClientExceptionFilter } from 'src/prisma/prisma-client-exception.filter';
 import session from 'express-session';
-import { RefreshSessionMiddleware } from '../src/common/middlewares';
+import { RefreshSessionMiddleware } from 'src/common/middlewares';
 import * as pactum from 'pactum';
-import { PrismaService } from '../src/prisma/prisma.service';
-import { SigninDto, SignupDto } from '../src/auth/dto';
-import checkDatabaseConnection from '../src/checkDbConnection';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { SigninDto, SignupDto } from 'src/auth/dto';
+import checkDatabaseConnection from 'src/checkDbConnection';
+import { Role } from 'src/common/enums/roles.enum';
 
 export let app: INestApplication;
 const port = 3331;
@@ -125,6 +126,22 @@ describe('AppController (e2e)', () => {
           .stores('userid', 'id')
           .expectStatus(201);
       });
+      it('should create to admin', async () => {
+        const admin = await prisma.user.upsert({
+          where: { email: 'admin@application.com' },
+          update: {},
+          create: {
+            email: 'admin@application.com',
+            name: 'Admin',
+            role: Role.ADMIN,
+            hash: '$argon2id$v=19$m=65536,t=3,p=4$klB1o6omNICyPg8jvb9q9Q$BDprpmHgPIn3EMxdjtA+RKSA0ZGESFAaZbpDaLW8nnY',
+          },
+        });
+        expect(admin).toBeDefined();
+        expect(admin.email).toBe('admin@application.com');
+        expect(admin.name).toBe('Admin');
+        expect(admin.role).toBe(Role.ADMIN);
+      });
     });
 
     describe('Signin', () => {
@@ -146,13 +163,36 @@ describe('AppController (e2e)', () => {
           })
           .expectStatus(401);
       });
-      it('should signin', async () => {
-        return pactum
-          .spec()
-          .post('/auth/signin')
-          .withBody(loginDto)
-          .expectStatus(200)
-          .stores('authcookie', 'res.headers.set-cookie[0]');
+      it('should signin with admin', async () => {
+        return (
+          pactum
+            .spec()
+            .post('/auth/signin')
+            .withBody({
+              ...loginDto,
+              email: 'admin@application.com',
+            })
+            .expectStatus(200)
+            .stores('adminid', 'id')
+
+            // .inspect()
+            .stores('authcookie', 'res.headers.set-cookie[0]')
+        );
+      });
+      it('should signin with user', async () => {
+        return (
+          pactum
+            .spec()
+            .post('/auth/signin')
+            .withBody({
+              ...loginDto,
+            })
+            .expectStatus(200)
+            .stores('userid', 'id')
+
+            // .inspect()
+            .stores('userauthcookie', 'res.headers.set-cookie[0]')
+        );
       });
       // });
     });

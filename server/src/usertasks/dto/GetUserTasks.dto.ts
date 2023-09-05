@@ -33,7 +33,7 @@ export class GetUserTaskDto {
   userId: number;
 
   @ApiProperty({
-    example: 2,
+    example: 1,
     description: 'Id of task which is related this',
   })
   taskId: number;

@@ -19,7 +19,7 @@ describe('TagsController (e2e)', () => {
       .withCookies('$S{authcookie}')
       .withBody({ name: 'Tag 1' })
       .stores('tagid', 'id')
-      .expectJson('createdBy', '$S{userid}')
+      .expectJson('createdBy', '$S{adminid}')
       .expectStatus(201);
   });
   it('should get a tag ', () => {
@@ -110,5 +110,62 @@ describe('TagsController (e2e)', () => {
         limit: 10,
         totalItems: 1,
       });
+  });
+  describe('Checking  user role actions on Tags', () => {
+    it('should create a tag using auth cookie', () => {
+      return pactum
+        .spec()
+        .post('/tags')
+        .withCookies('$S{authcookie}')
+        .withBody({ name: 'Dummy tag' })
+        .stores('dummytagid', 'id')
+        .expectStatus(201);
+    });
+    it('should fail creating a tag using user cookie', () => {
+      return pactum
+        .spec()
+        .withCookies('$S{userauthcookie}')
+        .post('/tags')
+        .withBody({ name: 'tags 1' })
+        .expectStatus(403);
+    });
+    it('should fail when trying to delete a tag', () => {
+      return pactum
+        .spec()
+        .withCookies('$S{userauthcookie}')
+        .delete('/tags/{id}')
+        .withPathParams('id', `$S{dummytagid}`)
+        .expectStatus(403);
+    });
+    it('should fail when trying to update the tag', () => {
+      return pactum
+        .spec()
+        .withCookies('$S{userauthcookie}')
+        .patch('/tags/{id}')
+        .withPathParams('id', `$S{dummytagid}`)
+        .withBody({ name: 'tags 2' })
+        .expectStatus(403);
+    });
+    it('should return a list of tags', async () => {
+      return pactum
+        .spec()
+        .get('/tags')
+        .withCookies('$S{userauthcookie}')
+        .expectStatus(200)
+        .expectJsonLength('data', 2)
+        .expectJson('meta', {
+          page: 1,
+          limit: 10,
+          totalItems: 2,
+        });
+    });
+    it('should return a tags', async () => {
+      return pactum
+        .spec()
+        .get('/tags/{id}')
+        .withCookies('$S{userauthcookie}')
+        .withPathParams('id', `$S{dummytagid}`)
+        .expectStatus(200);
+    });
   });
 });

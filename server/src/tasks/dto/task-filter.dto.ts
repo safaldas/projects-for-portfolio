@@ -44,4 +44,22 @@ export class TaskFilterDto {
   @IsNumber()
   @Type(() => Number)
   projectId?: number;
+
+  @ApiProperty({
+    required: false,
+    description: 'order by ascending',
+    example: 'name',
+  })
+  @IsOptional()
+  @IsString()
+  orderByAsc?: string;
+
+  @ApiProperty({
+    required: false,
+    description: 'order by descending',
+    example: 'name',
+  })
+  @IsOptional()
+  @IsString()
+  orderByDesc?: string;
 }

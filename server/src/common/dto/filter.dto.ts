@@ -64,4 +64,20 @@ export class FilterDto {
   @IsNumber()
   @Type(() => Number)
   user?: number;
+
+  @ApiProperty({
+    required: false,
+    description: 'Filter by order by ascending',
+  })
+  @IsOptional()
+  @IsString()
+  orderByAsc?: string;
+
+  @ApiProperty({
+    required: false,
+    description: 'Filter by order by descending',
+  })
+  @IsOptional()
+  @IsString()
+  orderByDesc?: string;
 }
