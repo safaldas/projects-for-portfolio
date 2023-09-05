@@ -36,8 +36,8 @@ import { UsertasksService } from '../usertasks/usertasks.service';
 import { UserTaskDto } from '../usertasks/dto/UserTask.dto';
 import { GetUserTaskDto } from '../usertasks/dto/GetUserTasks.dto';
 import { AssignProjectDto } from './assignProject.dto';
-import { Roles } from '../../src/common/decorators/roles.decorator';
-import { Role } from '../../src/common/enums/roles.enum';
+import { Roles } from '../common/decorators/roles.decorator';
+import { Role } from '../common/enums/roles.enum';
 
 @ApiTags('Projects') // This adds a tag to the Swagger documentation for the controller
 @UseGuards(AuthenticatedGuard)

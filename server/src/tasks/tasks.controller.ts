@@ -29,8 +29,8 @@ import {
 } from '@nestjs/swagger';
 import { CreateTaskDto, TaskDto, TaskFilterDto, UpdateTaskDto } from './dto';
 import { User } from '@prisma/client';
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { Role } from 'src/common/enums/roles.enum';
+import { Roles } from '../common/decorators/roles.decorator';
+import { Role } from '../common/enums/roles.enum';
 
 @ApiTags('Tasks')
 @UseGuards(AuthenticatedGuard)
