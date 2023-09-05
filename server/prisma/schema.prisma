@@ -20,6 +20,7 @@ model User {
   hash  String
   name  String
 
+  role              Role       @default(USER)
   projects          Project[] // Define the many-to-many relation with projects
   tasks             UserTask[]
   createdCategories Category[] @relation("CreatedByCategories")
@@ -107,4 +108,10 @@ model UserTask {
   task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
   @@map("UserTasks")
+}
+
+enum Role {
+  ADMIN
+  USER
+  MANAGER
 }

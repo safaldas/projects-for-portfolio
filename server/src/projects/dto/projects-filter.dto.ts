@@ -56,4 +56,20 @@ export class ProjectsFilterDto {
   @IsNumber()
   @Type(() => Number)
   user?: number;
+
+  @ApiProperty({
+    required: false,
+    description: 'order by ascending',
+  })
+  @IsOptional()
+  @IsString()
+  orderByAsc?: string;
+
+  @ApiProperty({
+    required: false,
+    description: 'order by descending',
+  })
+  @IsOptional()
+  @IsString()
+  orderByDesc?: string;
 }

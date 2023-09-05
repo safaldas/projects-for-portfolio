@@ -29,6 +29,8 @@ import {
 } from '@nestjs/swagger';
 import { CreateTaskDto, TaskDto, TaskFilterDto, UpdateTaskDto } from './dto';
 import { User } from '@prisma/client';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from 'src/common/enums/roles.enum';
 
 @ApiTags('Tasks')
 @UseGuards(AuthenticatedGuard)
@@ -36,7 +38,8 @@ import { User } from '@prisma/client';
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
-  @ApiOperation({ summary: 'Create a new Task' })
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Create a new Task. Scope: [admin]' })
   @Post()
   @ApiCreatedResponse({
     description: 'The task has been successfully created',
@@ -72,7 +75,8 @@ export class TasksController {
     return this.tasksService.findOne(+id);
   }
 
-  @ApiOperation({ summary: 'Update a task by ID' })
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Update a task by ID. Scope: [admin]' })
   @ApiParam({ name: 'id', type: String, description: 'ID' })
   @Patch(':id')
   @ApiOkResponse({
@@ -86,7 +90,8 @@ export class TasksController {
     return this.tasksService.update(+id, updateTaskDto);
   }
 
-  @ApiOperation({ summary: 'Delete a task by ID' })
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Delete a task by ID. Scope: [admin]' })
   @ApiParam({ name: 'id', type: String, description: 'ID' })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')

@@ -52,7 +52,6 @@ describe('ProjectsController (e2e)', () => {
           tags: [10],
         })
         .stores('dprojectid', 'id')
-        .inspect()
         .expectStatus(400);
       return pactum
         .spec()
@@ -111,7 +110,7 @@ describe('ProjectsController (e2e)', () => {
         .expectStatus(200);
     });
 
-    it('should update a project with user id ', () => {
+    it('should fail when updating a project with user id ', () => {
       return pactum
         .spec()
         .withCookies('$S{authcookie}')
@@ -241,6 +240,62 @@ describe('ProjectsController (e2e)', () => {
           totalItems: 0,
         });
     });
+    it('should create 5 additional projects', async () => {
+      for (let i = 0; i < 5; i++) {
+        await pactum
+          .spec()
+          .post('/projects')
+          .withCookies('$S{authcookie}')
+          .withBody({
+            name: `${i} Test Project`,
+            description: `${i} Test description`,
+            categories: ['$S{categoryid}'],
+            tags: ['$S{tagid}'],
+          })
+          .stores(`projectid${i}`, 'id')
+          .expectStatus(201);
+      }
+    });
+    // it should return the list of project with orderByAsc and check if the order is correct
+    it('should return a list of projects with pagination and filter in ascending order name', async () => {
+      await pactum
+        .spec()
+        .get('/projects')
+        .withCookies('$S{authcookie}')
+        .withQueryParams({
+          page: 1,
+          limit: 10,
+          orderByAsc: 'name',
+        })
+        .expectStatus(200)
+        .expectJson('data.0.name', '0 Test Project')
+        .expectJson('data.1.name', '1 Test Project')
+        .expectJson('meta', {
+          page: 1,
+          limit: 10,
+          totalItems: 6,
+        });
+    });
+    // it should return the list of project with orderByAsc and check if the order is correct
+    it('should return a list of projects with pagination and filter descending description', async () => {
+      await pactum
+        .spec()
+        .get('/projects')
+        .withCookies('$S{authcookie}')
+        .withQueryParams({
+          page: 1,
+          limit: 10,
+          orderByDesc: 'description',
+        })
+        .expectStatus(200)
+        .expectJson('data.0.name', 'Test Project')
+        .expectJson('data.1.name', '4 Test Project')
+        .expectJson('meta', {
+          page: 1,
+          limit: 10,
+          totalItems: 6,
+        });
+    });
 
     describe('Assigning task to user and its associations', () => {
       it('should return empty list of tasks for this project ', async () => {
@@ -289,27 +344,6 @@ describe('ProjectsController (e2e)', () => {
           .get(`/projects/$S{projectId}`)
           .withCookies('$S{authcookie}')
           .expectStatus(200);
-
-        // assign these tasks to the user
-        // await pactum
-        //   .spec()
-        //   .post(`/projects/$S{projectId}/mytasks`)
-        //   .withCookies('$S{authcookie}')
-        //   .withBody({
-        //     taskId: '$S{taskid1}',
-        //     userId: '$S{userid}',
-        //   })
-        //   .expectStatus(201);
-
-        // await pactum
-        //   .spec()
-        //   .post(`/projects/$S{projectId}/mytasks`)
-        //   .withCookies('$S{authcookie}')
-        //   .withBody({
-        //     taskId: '$S{taskid2}',
-        //     userId: '$S{userid}',
-        //   })
-        //   .expectStatus(201);
       });
       it('should assign this project to current user', async () => {
         await pactum
@@ -378,5 +412,69 @@ describe('ProjectsController (e2e)', () => {
     });
     // ... more test cases ...
   });
+  describe('Checking  user role actions on Project', () => {
+    // first create one   it('should create a category', () => {
+    // it('should create a category using auth cookie', () => {
+    //   return pactum
+    //     .spec()
+    //     .post('/category')
+    //     .withCookies('$S{authcookie}')
+    //     .withBody({ name: 'Dummy Cat' })
+    //     .stores('dummycatid', 'id')
+    //     .expectStatus(201);
+    // });
+    it('should return a list of category', async () => {
+      return pactum
+        .spec()
+        .get('/projects')
+        .withCookies('$S{userauthcookie}')
+        .expectStatus(200)
+        .expectJsonLength('data', 6)
+        .expectJson('meta', {
+          page: 1,
+          limit: 10,
+          totalItems: 6,
+        });
+    });
+    it('should fail creating a category using user cookie', () => {
+      return pactum
+        .spec()
+        .post('/projects')
+        .withCookies('$S{userauthcookie}')
+        .withBody({
+          name: 'Test Project',
+          description: 'Test description',
+          categories: [`$S{categoryid}`],
+          tags: [`$S{tagid}`],
+        })
+        .expectStatus(403);
+    });
+    it('should return a project', async () => {
+      return pactum
+        .spec()
+        .get('/projects/{id}')
+        .withCookies('$S{userauthcookie}')
+        .withPathParams('id', `$S{projectId}`)
+        .expectStatus(200);
+    });
+    it('should fail when trying to delete a project', () => {
+      return pactum
+        .spec()
+        .withCookies('$S{userauthcookie}')
+        .delete('/projects/{id}')
+        .withPathParams('id', `$S{projectId}`)
+        .expectStatus(403);
+    });
+    it('should fail when trying to update the project', () => {
+      return pactum
+        .spec()
+        .withCookies('$S{userauthcookie}')
+        .patch('/projects/{id}')
+        .withPathParams('id', `$S{projectId}`)
+        .withBody({ name: 'project 2' })
+        .expectStatus(403);
+    });
+  });
+
   // end projects
 });

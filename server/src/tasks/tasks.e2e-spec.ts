@@ -136,7 +136,7 @@ describe('TasksController (e2e)', () => {
         .expectStatus(201)
         .stores('taskid', 'id')
         .expectBodyContains('id')
-        .expectJson('createdBy', '$S{userid}')
+        .expectJson('createdBy', '$S{adminid}')
         .expectBodyContains('My task');
     });
     describe('Pagination of Tasks', () => {

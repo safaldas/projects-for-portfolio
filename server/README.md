@@ -32,6 +32,12 @@ yarn run db:dev:up
 # development
 $ yarn run start:dev
 
+for seeding admin user
+
+$ npx prisma db seed
+
+`email: 'admin@application.com', pw: 123`
+
 http://localhost:3333
 
 # production mode
@@ -54,6 +60,6 @@ $ yarn run test:e2e:watch
 
 the api documentation is in http://localhost:3333/api
 
-# TODO
+## For creating admin user u can sign up as user and update role in db directly using prisma studio
 
-createdby and updatedby is needed
+`yarn prisma:studio`

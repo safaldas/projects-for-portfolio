@@ -30,12 +30,14 @@ import {
 import { CreateProjectDto, ProjectDto, UpdateProjectDto } from './dto';
 import { ProjectsFilterDto } from './dto/projects-filter.dto';
 import { User } from '@prisma/client';
-import { AssignUserToTaskDto } from '../usertasks/dto/assignUserToTask.dto';
+// import { AssignUserToTaskDto } from '../usertasks/dto/assignUserToTask.dto';
 import { UpdateTaskStatusDto } from '../usertasks/dto/updateTaskStatus.dto';
 import { UsertasksService } from '../usertasks/usertasks.service';
 import { UserTaskDto } from '../usertasks/dto/UserTask.dto';
 import { GetUserTaskDto } from '../usertasks/dto/GetUserTasks.dto';
 import { AssignProjectDto } from './assignProject.dto';
+import { Roles } from '../../src/common/decorators/roles.decorator';
+import { Role } from '../../src/common/enums/roles.enum';
 
 @ApiTags('Projects') // This adds a tag to the Swagger documentation for the controller
 @UseGuards(AuthenticatedGuard)
@@ -47,11 +49,14 @@ export class ProjectsController {
     private readonly userTasksService: UsertasksService,
   ) {}
 
-  @ApiOperation({ summary: 'Create a new Project' })
+  @ApiOperation({
+    summary: 'Create a new Project. Scope: [admin]',
+  })
   @ApiCreatedResponse({
     type: ProjectDto,
   })
   @Post()
+  @Roles(Role.ADMIN)
   create(
     @Body() createProjectDto: CreateProjectDto,
     @CurrentUser() user: User,
@@ -85,7 +90,8 @@ export class ProjectsController {
     return this.projectsService.findOne(+id);
   }
 
-  @ApiOperation({ summary: 'Update a project by ID' })
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Update a project by ID. Scope: [admin]' })
   @ApiOkResponse({
     description: 'Project updated successfully',
     type: ProjectDto,
@@ -98,7 +104,8 @@ export class ProjectsController {
     return this.projectsService.update(+id, updateProjectDto);
   }
 
-  @ApiOperation({ summary: 'Delete a project by ID' })
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Delete a project by ID. Scope: [admin]' })
   @ApiOkResponse({
     description: 'Project removed successfully',
     type: ProjectDto,

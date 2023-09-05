@@ -19,4 +19,22 @@ export class CategoryFilterDto {
   @IsOptional()
   @IsString()
   q?: string;
+
+  @ApiProperty({
+    required: false,
+    description: 'order by ascending',
+    example: 'name',
+  })
+  @IsOptional()
+  @IsString()
+  orderByAsc?: string;
+
+  @ApiProperty({
+    required: false,
+    description: 'order by descending',
+    example: 'name',
+  })
+  @IsOptional()
+  @IsString()
+  orderByDesc?: string;
 }

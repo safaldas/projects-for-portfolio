@@ -28,9 +28,12 @@ import {
   ApiCreatedResponse,
   ApiCookieAuth,
 } from '@nestjs/swagger';
-import { CreateTagDto, TagDto, UpdateTagDto } from './dto';
-import { TagFilterDto } from './dto/tag-filter.dto';
 import { User } from '@prisma/client';
+
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from 'src/common/enums/roles.enum';
+import { TagDto, CreateTagDto, UpdateTagDto } from './dto';
+import { TagFilterDto } from './dto/tag-filter.dto';
 
 @UseGuards(AuthenticatedGuard)
 @ApiCookieAuth()
@@ -39,7 +42,8 @@ import { User } from '@prisma/client';
 export class TagsController {
   constructor(private readonly tagsService: TagsService) {}
 
-  @ApiOperation({ summary: 'Create a new tag' })
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Create a new tag. Scope: [admin]' })
   @ApiCreatedResponse({
     type: TagDto,
   })
@@ -76,7 +80,8 @@ export class TagsController {
     return this.tagsService.findOne(+id);
   }
 
-  @ApiOperation({ summary: 'Update a tag by ID' })
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Update a tag by ID. Scope: [admin]' })
   @ApiParam({ name: 'id', type: Number, description: 'Tag ID', example: 1 })
   @ApiBody({ type: UpdateTagDto })
   @ApiResponse({
@@ -94,7 +99,8 @@ export class TagsController {
     return this.tagsService.update(+id, updateTagDto);
   }
 
-  @ApiOperation({ summary: 'Delete a tag by ID' })
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Delete a tag by ID. Scope: [admin]' })
   @ApiParam({ name: 'id', type: String, description: 'Tag ID' })
   @ApiResponse({
     status: HttpStatus.NO_CONTENT,

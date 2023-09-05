@@ -29,6 +29,8 @@ import {
 } from '@nestjs/swagger';
 import { CategoryFilterDto } from './dto/category-filter.dto';
 import { User } from '@prisma/client';
+import { Role } from 'src/common/enums/roles.enum';
+import { Roles } from 'src/common/decorators/roles.decorator';
 
 @ApiTags('Categories')
 @UseGuards(AuthenticatedGuard)
@@ -36,7 +38,8 @@ import { User } from '@prisma/client';
 export class CategoryController {
   constructor(private readonly categoriesService: CategoryService) {}
 
-  @ApiOperation({ summary: 'Create a new category' })
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Create a new category. Scope: [admin]' })
   @Post()
   @ApiCreatedResponse({
     description: 'The category has been created successfully',
@@ -72,8 +75,9 @@ export class CategoryController {
     return this.categoriesService.findOne(+id);
   }
 
+  @Roles(Role.ADMIN)
   @ApiParam({ name: 'id', type: Number, description: ' ID', example: 1 })
-  @ApiOperation({ summary: 'Update a category by ID' })
+  @ApiOperation({ summary: 'Update a category by ID. Scope: [admin]' })
   @Patch(':id')
   @ApiOkResponse({
     description: 'Category updated successfully',
@@ -86,8 +90,9 @@ export class CategoryController {
     return this.categoriesService.update(+id, updateCategoryDto);
   }
 
+  @Roles(Role.ADMIN)
   @ApiParam({ name: 'id', type: Number, description: ' ID', example: 1 })
-  @ApiOperation({ summary: 'Delete a category by ID' })
+  @ApiOperation({ summary: 'Delete a category by ID. Scope: [admin]' })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   @ApiNoContentResponse({

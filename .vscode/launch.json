@@ -17,5 +17,20 @@
           "start:dev"
       ],
   },
+  {
+    "type": "node",
+    "request": "launch",
+    "name": "E2E test",
+    "skipFiles": [
+        "<node_internals>/**"
+    ],
+    "cwd": "${workspaceFolder}/server",
+    "runtimeExecutable": "yarn",
+    "runtimeArgs": [
+        "test:e2e:watch"
+    ],
+    "outputCapture": "std"
+
+},
   ]
 }

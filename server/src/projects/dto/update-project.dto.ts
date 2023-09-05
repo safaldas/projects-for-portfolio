@@ -20,23 +20,23 @@ export class UpdateProjectDto {
   @IsNotEmpty()
   description: string;
 
-  @ApiProperty({
-    description: 'An array of task IDs',
-    example: [1, 2, 3],
-    type: [Number],
-  })
-  @IsArray()
-  @IsOptional()
-  tasks?: number[];
+  // @ApiProperty({
+  //   description: 'An array of task IDs',
+  //   example: [1, 2, 3],
+  //   type: [Number],
+  // })
+  // @IsArray()
+  // @IsOptional()
+  // tasks?: number[];
 
-  @ApiProperty({
-    description: 'An array of user IDs',
-    example: [1, 2, 3],
-    type: [Number],
-  })
-  @IsOptional()
-  @IsArray()
-  users: number[];
+  // @ApiProperty({
+  //   description: 'An array of user IDs',
+  //   example: [1, 2, 3],
+  //   type: [Number],
+  // })
+  // @IsOptional()
+  // @IsArray()
+  // users: number[];
 
   @ApiProperty({
     description: 'An array of category IDs',

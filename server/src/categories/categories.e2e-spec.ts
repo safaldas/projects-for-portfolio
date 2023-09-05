@@ -59,7 +59,7 @@ describe('Categories', () => {
       .expectJsonLike({
         id: `$S{categoryid}`,
         name: 'Category 2',
-        createdBy: '$S{userid}',
+        createdBy: '$S{adminid}',
       })
       .expectStatus(200);
   });
@@ -102,7 +102,7 @@ describe('Categories', () => {
       .withCookies('$S{authcookie}')
       .withBody({ name: 'Category 1' })
       .stores('categoryid', 'id')
-      .expectJson('createdBy', '$S{userid}')
+      .expectJson('createdBy', '$S{adminid}')
       .expectStatus(201);
     await pactum
       .spec()
@@ -163,6 +163,66 @@ describe('Categories', () => {
       .delete('/category/{id}')
       .withPathParams('id', `$S{categoryid}`)
       .expectStatus(204);
+  });
+  // write test cases for user where the assserstions are checking failures
+  // for create,update,delete and succcess for get requests
+  describe('Checking  user role actions on Category', () => {
+    // first create one   it('should create a category', () => {
+    it('should create a category using auth cookie', () => {
+      return pactum
+        .spec()
+        .post('/category')
+        .withCookies('$S{authcookie}')
+        .withBody({ name: 'Dummy Cat' })
+        .stores('dummycatid', 'id')
+        .expectStatus(201);
+    });
+    it('should fail creating a category using user cookie', () => {
+      return pactum
+        .spec()
+        .withCookies('$S{userauthcookie}')
+        .post('/category')
+        .withBody({ name: 'Category 1' })
+        .expectStatus(403);
+    });
+    it('should fail when trying to delete a category', () => {
+      return pactum
+        .spec()
+        .withCookies('$S{userauthcookie}')
+        .delete('/category/{id}')
+        .withPathParams('id', `$S{dummycatid}`)
+        .expectStatus(403);
+    });
+    it('should fail when trying to update the category', () => {
+      return pactum
+        .spec()
+        .withCookies('$S{userauthcookie}')
+        .patch('/category/{id}')
+        .withPathParams('id', `$S{dummycatid}`)
+        .withBody({ name: 'Category 2' })
+        .expectStatus(403);
+    });
+    it('should return a list of category', async () => {
+      return pactum
+        .spec()
+        .get('/category')
+        .withCookies('$S{userauthcookie}')
+        .expectStatus(200)
+        .expectJsonLength('data', 1)
+        .expectJson('meta', {
+          page: 1,
+          limit: 10,
+          totalItems: 1,
+        });
+    });
+    it('should return a category', async () => {
+      return pactum
+        .spec()
+        .get('/category/{id}')
+        .withCookies('$S{userauthcookie}')
+        .withPathParams('id', `$S{dummycatid}`)
+        .expectStatus(200);
+    });
   });
   // end category
 });
