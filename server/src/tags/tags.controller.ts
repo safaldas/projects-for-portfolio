@@ -30,8 +30,8 @@ import {
 } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { Role } from 'src/common/enums/roles.enum';
+import { Roles } from '../common/decorators/roles.decorator';
+import { Role } from '../common/enums/roles.enum';
 import { TagDto, CreateTagDto, UpdateTagDto } from './dto';
 import { TagFilterDto } from './dto/tag-filter.dto';
 
