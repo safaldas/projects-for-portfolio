@@ -1,16 +1,24 @@
 import React, { useState } from "react";
 import * as Form from "@radix-ui/react-form";
+
+import { useDispatch, useSelector } from 'react-redux'
+
+
 import "./style.css";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { StyledLoader } from "@phork/phorkit";
 import axiosInstance from "../../util/axios-instance";
 
+import { setIsAdmin, setUser } from '../../store/slices/users.slice';
+
+
 const FormDemo = () => {
   const [state, setState] = useState({
     email: "",
     password: "",
   });
+  const dispatch = useDispatch();
 
   const navigateTo = useNavigate();
 
@@ -26,7 +34,10 @@ const FormDemo = () => {
   } = useMutation(Login, {
     onError: (err) => console.log("The error", err),
     onSuccess: (data) => {
-      localStorage.setItem("user", JSON.stringify(data));
+      dispatch(setUser(data))
+      dispatch(setIsAdmin(data?.role === 'ADMIN'))
+
+
       setState({
         email: "",
         password: "",

@@ -1,87 +1,62 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import * as Form from "@radix-ui/react-form";
 import "./style.css";
-import { colourOptions } from "../../data/dropData";
-import AsyncCreatable from "react-select/async-creatable";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import axiosInstance from "../../util/axios-instance";
+import Tags from "./Tags";
+import Categories from "./Categories";
+import { StyledLoader } from "@phork/phorkit";
 
-const TaskForm = () => {
+import { setIsSubmitted, addProject } from '../../store/slices/projects.slice';
+import { useDispatch } from 'react-redux'
+
+
+const TaskForm = (props) => {
   const [state, setState] = useState({
-    title: "",
+    name: "",
     description: "",
-    category: "",
-    tags: "",
   });
-  const [page] = useState(1);
-  const [limit] = useState(100);
-  const [tagsClicked, setTagsCLicked] = useState(false);
-  const [categoryClicked, setCategoryCLicked] = useState(false);
+  const [tags, setTags] = useState();
+  const [category, setCategory] = useState();
+  const dispatch = useDispatch();
 
-  const handleTagsApi = useQuery({
-    queryKey: ["tags"],
-    enabled: tagsClicked,
-    queryFn: async () => {
-      const response = await axiosInstance.get("/tags", {
-        params: {
-          page: page,
-          limit: limit,
-        },
-      });
-      const data = await response.data;
-      console.log(data?.msg);
-      return data;
-    },
-  });
-
-  const handleCategoryApi = useQuery({
-    queryKey: ["tags"],
-    enabled: categoryClicked,
-    queryFn: async () => {
-      const response = await axiosInstance.get("/category", {
-        params: {
-          page: page,
-          limit: limit,
-        },
-      });
-      const data = await response.data;
-      console.log(data?.msg);
-      return data;
-    },
-  });
-
-  useEffect(() => {
-    handleTagsApi;
-    handleCategoryApi;
-    // console.log(handleTagsApi,"...category...",handleCategoryApi)
-  }, []);
 
   const Submit = async (dataToPost) => {
-    const res = await axiosInstance.post("/auth/signin", dataToPost);
+    const res = await axiosInstance.post("/projects", dataToPost);
+    props.setOpen(false)
     return res.data;
   };
 
   const {
     isLoading,
     error,
-    mutate: doLogin,
+    mutate: createProject,
   } = useMutation(Submit, {
     onError: (err) => console.log("The error", err),
     onSuccess: (data) => {
-      localStorage.setItem("user", JSON.stringify(data));
+      dispatch(addProject(data))
+      dispatch(setIsSubmitted(true))
       setState({
-        title: "",
+        name: "",
         description: "",
-        category: "",
-        tags: "",
       });
     },
   });
 
+
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    doLogin({ email: state?.email, password: state?.password });
+    if (tags !== undefined && category !== undefined) {
+      let result = tags?.map(a => a?.id);
+      let catArr = [];
+      catArr.push(category?.id)
+      createProject({ name: state.name, description: state.description, categories: catArr, tags: result });
+    }
   };
+
+
+
 
   function handleChange(event: { target: { name: string; value: string } }) {
     setState((prevState) => ({
@@ -90,37 +65,12 @@ const TaskForm = () => {
     }));
   }
 
-  const handleCategoryChange = (category) => {
-    console.log(category);
-    setCategory(category.value);
-  };
 
-  const handleTagsChange = (tags) => {
-    console.log(tags);
-    // setState((prevState) => ({
-    //   ...prevState,
-    //   [event.target.name]: event.target.value
-    // }))
-  };
 
-  const filterColors = (inputValue: string) => {
-    return colourOptions.filter((i) =>
-      i.label.toLowerCase().includes(inputValue.toLowerCase())
-    );
-  };
-
-  const loadOptions = (
-    inputValue: string,
-    callback: (options: ColourOption[]) => void
-  ) => {
-    setTimeout(() => {
-      callback(filterColors(inputValue));
-    }, 1000);
-  };
 
   return (
-    <Form.Root className="FormRoot">
-      <Form.Field className="FormField" name="title">
+    <Form.Root name="categoryForm" onSubmit={handleSubmit} className="FormRoot">
+      <Form.Field className="FormField" name="name">
         <div
           style={{
             display: "flex",
@@ -128,13 +78,13 @@ const TaskForm = () => {
             justifyContent: "space-between",
           }}
         >
-          <Form.Label className="FormLabel">Title</Form.Label>
+          <Form.Label className="FormLabel">Name</Form.Label>
           <Form.Message className="FormMessage" match="valueMissing">
-            Please enter task title
+            Please enter task name
           </Form.Message>
         </div>
         <Form.Control asChild>
-          <input className="Input" type="text" required />
+          <input className="Input" value={state.name} onChange={handleChange} type="text" required />
         </Form.Control>
       </Form.Field>
       <Form.Field className="FormField" name="description">
@@ -151,7 +101,7 @@ const TaskForm = () => {
           </Form.Message>
         </div>
         <Form.Control asChild>
-          <textarea className="Textarea" required />
+          <textarea className="Textarea" value={state.description} onChange={handleChange} required />
         </Form.Control>
       </Form.Field>
       <Form.Field className="FormField" name="category">
@@ -162,18 +112,15 @@ const TaskForm = () => {
             justifyContent: "space-between",
           }}
         >
-          <Form.Label className="FormLabel">Category</Form.Label>
+          <Form.Label className="FormLabel">Category </Form.Label>
+          <Form.Message className="FormMessage" match={category}>
+            Please select a category
+          </Form.Message>
         </div>
-        {/* <Form.Control asChild> */}
-        <AsyncCreatable
-          cacheOptions
-          defaultOptions
-          loadOptions={loadOptions}
-          onChange={handleTagsChange}
-          onFocus={() => setCategoryCLicked(true)}
-          onBlur={() => setCategoryCLicked(false)}
-        />{" "}
-        {/* </Form.Control> */}
+        <Form.Control asChild>
+          <Categories setCategory={setCategory} />
+
+        </Form.Control>
       </Form.Field>
       <Form.Field className="FormField" name="tags">
         <div
@@ -184,30 +131,25 @@ const TaskForm = () => {
           }}
         >
           <Form.Label className="FormLabel">Tags</Form.Label>
+          <Form.Message className="FormMessage" match={tags}>
+            Please select a Tags
+          </Form.Message>
         </div>
-        {/* <Form.Control asChild> */}
-        <AsyncCreatable
-          cacheOptions
-          defaultOptions
-          loadOptions={loadOptions}
-          isMulti
-          onChange={handleTagsChange}
-          onFocus={() => setTagsCLicked(true)}
-          onBlur={() => setTagsCLicked(false)}
-        />
-        {/* <Select
-      closeMenuOnSelect={false}
-      defaultValue={[colourOptions[4], colourOptions[5]]}
-      isMulti
-      options={colourOptions}
-      onChange={handleTagsChange}
-    /> */}
-        {/* </Form.Control> */}
+        <Form.Control asChild>
+          <Tags setTags={setTags} />
+        </Form.Control>
       </Form.Field>
+
+      {error && <div style={{ color: 'red' }}>{error}</div>}
+
       <Form.Submit asChild>
-        <button className="Button" style={{ marginTop: 10 }}>
-          Add Task
-        </button>
+        {isLoading ?
+          <StyledLoader style={{ marginLeft: "30%" }} color="#556270" />
+          : <button className="Button" style={{ marginTop: 10 }}>
+            Add Project
+          </button>
+        }
+
       </Form.Submit>
     </Form.Root>
   );

@@ -17,18 +17,17 @@ const Card: React.FC<CardProps> = ({ card, index }) => {
   const { toggleVisibility } = useModal();
 
   return (
-    <Draggable draggableId={card.id} index={index}>
+    <Draggable draggableId={String(card.id)} index={index}>
       {provided => (
-        <CardContainer 
-          onClick={() => toggleVisibility(card)} 
-          hidecard={card.hidden}
-          ref={provided.innerRef} 
-          {...provided.draggableProps} 
+        <CardContainer
+          // onClick={() => toggleVisibility(card)}
+          ref={provided.innerRef}
+          {...provided.draggableProps}
           {...provided.dragHandleProps}
         >
-          <h3>{card.title}</h3>
+          <h3>{card.task.name}</h3>
           <CardBottom>
-            <p>+ View More</p>
+            <button onClick={() => toggleVisibility(card.task)}>view more +</button>
           </CardBottom>
         </CardContainer>
       )}

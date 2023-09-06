@@ -3,6 +3,50 @@
 @import '@radix-ui/colors/mauve.css';
 
 /* reset */
+.containerEdit{
+  font-family: system-ui;
+  width: 50vw;
+  height: 60vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 50px 300px;
+  
+
+}
+
+.containerModal{
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modalContent{
+  padding: 3rem;
+  min-height: 400px;
+  width: 600px;
+  background: #D3D3D3;
+  border-radius: 5px;
+  position: relative;
+
+  
+
+}
+.imgClose {
+  height: 15px;
+  width: 15px;
+  position: absolute;
+  right: 2rem;
+  top: 2rem;
+  cursor: pointer;
+}
+
 input,
 textarea,
 button {
@@ -10,8 +54,9 @@ button {
   box-sizing: border-box;
 }
 
-.FormRoot {
-  width: 260px;
+.FormRootEdit {
+  width: 100%;
+  margin-top: 50px;
 }
 
 .FormField {
@@ -19,17 +64,43 @@ button {
   margin-bottom: 10px;
 }
 
-.FormLabel {
+.FormLabelEdit {
   font-size: 15px;
   font-weight: 500;
   line-height: 35px;
-  color: white;
+  color: black;
 }
 
 .FormMessage {
   font-size: 13px;
   color: #808080;
   opacity: 0.8;
+}
+
+.listComp {
+  text-align: center;
+}
+
+.headBar {
+  text-align: center;
+}
+.heading {
+  display: inline;
+}
+.buttonRight {
+  display: inline-block;
+  background-color: #808080;
+  color: white;
+  float: right;
+  right: 10px;
+  top: 10px;
+  position: relative;
+}
+
+
+._1un17-lst{
+  position: inherit !important;
+
 }
 
 .Input,

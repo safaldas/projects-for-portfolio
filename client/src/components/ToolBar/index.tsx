@@ -8,13 +8,18 @@ import { useNavigate } from 'react-router-dom';
 import AddProject from '../AddProject';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { useCookies } from 'react-cookie'
+import { useSelector } from 'react-redux';
 
 const ToolBar = (props) => {
-  const { isAdmin, length } = props
+  const { length } = props
   const navigateTo = useNavigate();
   const location = useLocation();
   const [isClicked, setIsClicked] = useState(false)
+  const [cookies, removeCookie] = useCookies(["connect.sid"]);
+  const [open, setOpen] = useState(false)
 
+  const { isAdmin } = useSelector((state => state.users));
 
 
   const handleApi = useQuery({
@@ -22,7 +27,6 @@ const ToolBar = (props) => {
     queryFn: async () => {
       const response = await axios.get('http://localhost:3333/auth/logout');
       const data = await response.data;
-      console.log(data?.msg)
       data?.msg === 'The user session has ended' && navigateTo('/')
       return data;
     },
@@ -32,9 +36,9 @@ const ToolBar = (props) => {
 
 
   const handleLogout = (event) => {
+    removeCookie(["connect.sid"], "/")
     event.preventDefault();
     setIsClicked(true)
-    localStorage.clear();
     handleApi.isSuccess
   }
 
@@ -51,11 +55,11 @@ const ToolBar = (props) => {
       </Toolbar.ToggleGroup>
       <Toolbar.Separator className="ToolbarSeparator" />
       <Toolbar.ToggleGroup type="multiple" aria-label="Text formatting">
-        <Toolbar.Button style={{ marginLeft: 'auto' }} onClick={() => location.pathname === '/myProjects' ? navigateTo('/all') : navigateTo('/myProjects')}>
+        {!isAdmin && <Toolbar.Button style={{ marginLeft: 'auto' }} onClick={() => location.pathname === '/myProjects' ? navigateTo('/all') : navigateTo('/myProjects')}>
           {location.pathname === '/all' ? 'My Projects' : 'All Projects'}
-        </Toolbar.Button>
-        <Toolbar.Button style={{ marginLeft: 'auto' }}  >
-          {location.pathname === '/all' && isAdmin && <AddProject />}
+        </Toolbar.Button>}
+        <Toolbar.Button style={{ marginLeft: 'auto' }} onClick={() => setOpen(true)} >
+          {location.pathname === '/all' && isAdmin && <AddProject open={open} />}
         </Toolbar.Button>
       </Toolbar.ToggleGroup>
 

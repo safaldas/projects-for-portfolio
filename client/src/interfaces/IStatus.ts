@@ -1,7 +1,7 @@
 enum IStatus {
-  TO_DO = 'To do',
-  DOING = 'In Progress',
-  DONE = 'Done'
+  TODO = 'TODO',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'COMPLETED'
 } 
 
 export default IStatus;

@@ -1,112 +1,131 @@
-import { useState, useEffect, SetStateAction } from 'react';
-import { Container, ListContainer, TextContainer } from './style';
-import { Card, Typography, Pagination } from '@phork/phorkit'
-import Description from '../../components/Description/Description'
+import React, { useState, useEffect } from 'react';
+import { Container, ListContainer, TextContainer, Button, ButtonContainer, NoData } from './style';
+import { Card, Typography, Pagination, StyledLoader } from '@phork/phorkit'
+import { useNavigate } from "react-router-dom";
 import ToolBar from '../../components/ToolBar';
+
+import { useQuery } from "@tanstack/react-query";
+import axiosInstance from "../../util/axios-instance";
+
+// import { useDispatch,useSelector } from 'react-redux';
 
 const MyProjects = () => {
 
-  const URL = "https://jsonplaceholder.typicode.com/posts";
-  const [data, getData] = useState([]);
-  const [content, setContent] = useState();
+  const navigateTo = useNavigate();
 
-  
-  const arrayElm = (task: SetStateAction<undefined>)=>{
-    setContent(task);
+  const [page, setPage] = useState(1)
+  const user = JSON.parse(localStorage.getItem('user'))
 
-}
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["projects", page],
+    queryFn: async () => {
+      const response = await axiosInstance.get("/projects", {
+        params: {
+          page: page,
+          limit: 10,
+          user: user.id
+
+        },
+      });
+      const data = await response.data;
+
+      return data;
+    },
+  });
+
+
+  const pageChange = (e: any, pageNo: React.SetStateAction<number>) => {
+    setPage(pageNo)
+  }
 
   useEffect(() => {
-    fetchData();
-    //  console.log(data[0])
-  }, []);
 
-  const fetchData = () => {
-    fetch(URL)
-      .then((res) => res.json())
+    if (error?.response?.status == '403') {
 
-      .then((response) => {
-        // console.log(response);
-        getData(response);
-      });
-  };
-
+      localStorage.clear();
+      navigateTo('/')
+    }
+  }, [error])
 
 
   return (
     <>
       <div>
-        <Container>
-          <ToolBar length={data.length} isAdmin  />
-          <ListContainer>
+        {isLoading ? <StyledLoader style={{ marginLeft: "30%" }} color="#556270" /> :
 
-            {data.map((task) =>
-              <Card
-                hoverable
-                raised={10}
-                key={task?.id}
-                id={task?.id}
-                style={{
-                  marginLeft: "50px", 
-                  marginBottom: "50px", 
-                  width: "25%"
+          <Container>
+            <ToolBar length={data?.data?.length} isAdmin />
+            {data?.data?.length ? <div>
+              <ListContainer>
+
+                {data?.data?.map((task) =>
+                  <Card
+                    hoverable
+                    raised={10}
+                    key={task?.id}
+                    id={task?.id}
+                    style={{
+                      marginLeft: "50px",
+                      marginBottom: "50px",
+                      width: "25%"
+                    }}
+                  >
+                    <TextContainer>
+                      <Typography
+                        as="h1"
+                        color="primary"
+                        style={{
+                          alignItems: 'center',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          fontWeight: 'bold'
+                        }}
+                      >
+                        {task?.name}
+                      </Typography>
+                      <Typography
+                        as="div"
+                        color="primary"
+                        style={{
+                          alignItems: 'center',
+                          display: 'flex',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        {`${task?.description?.substring(0, 100)}...`}
+                      </Typography>
+                    </TextContainer>
+                    <ButtonContainer>
+                      <Button onClick={() => navigateTo(`/board/${task?.id}`)}>View</Button>
+                    </ButtonContainer>
+                  </Card>
+                )}
+
+
+              </ListContainer>
+              <Pagination
+                color="primary"
+                justify="center"
+                onChangePage={pageChange}
+                page={1}
+                pageLabelProps={{
+                  size: 'large',
+                  variants: 'no-wrap'
                 }}
-                onClick={() => setContent(task)}
-              >
-              <TextContainer>
-                <Typography
-                  as="h1"
-                  color="primary"
-                  style={{
-                    alignItems: 'center',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  {task?.title}
-                </Typography>
-                <Typography
-                  as="div"
-                  color="primary"
-                  style={{
-                    alignItems: 'center',
-                    display: 'flex',
-                    justifyContent: 'center',
-                  }}
-                >
-                  {`${task?.body?.substring(0, 100)}...`}
-                </Typography>
-                </TextContainer>
-                <div onClick={()=>arrayElm(task)}>
-                <Description content={content}/>
-
-                </div>
-                </Card>
-            )}
-
-            <Pagination
-              color="primary"
-              justify="start"
-              onChangePage={function noRefCheck() { }}
-              page={8}
-              pageLabelProps={{
-                size: 'medium',
-                variants: 'no-wrap'
-              }}
-              pageLinks={6}
-              pageSize={10}
-              shape="pill"
-              size="medium"
-              spacing="joined"
-              totalItems={300}
-              weight="shaded"
-              withIcons
-              withPageLinks
-              withPreviousAndNext
-            />
-          </ListContainer>
-        </Container>
+                pageLinks={6}
+                pageSize={10}
+                shape="pill"
+                size="large"
+                spacing="joined"
+                totalItems={data?.meta?.totalItems}
+                weight="shaded"
+                withIcons
+                withPageLinks
+                withPreviousAndNext
+              />
+            </div> : <NoData>No Data Found</NoData>}
+          </Container>
+        }
       </div>
     </>
   )
