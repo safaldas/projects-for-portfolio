@@ -9,14 +9,18 @@ import AddProject from '../AddProject';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useCookies } from 'react-cookie'
+import { useSelector } from 'react-redux';
 
 const ToolBar = (props) => {
-  const { isAdmin, length } = props
+  const { length } = props
   const navigateTo = useNavigate();
   const location = useLocation();
   const [isClicked, setIsClicked] = useState(false)
   const [cookies, removeCookie] = useCookies(["connect.sid"]);
   const [open, setOpen] = useState(false)
+
+  const { isAdmin } = useSelector((state => state.users));
+
 
   const handleApi = useQuery({
     queryKey: ['user'],
@@ -35,7 +39,6 @@ const ToolBar = (props) => {
     removeCookie(["connect.sid"], "/")
     event.preventDefault();
     setIsClicked(true)
-    localStorage.clear();
     handleApi.isSuccess
   }
 
@@ -52,9 +55,9 @@ const ToolBar = (props) => {
       </Toolbar.ToggleGroup>
       <Toolbar.Separator className="ToolbarSeparator" />
       <Toolbar.ToggleGroup type="multiple" aria-label="Text formatting">
-        <Toolbar.Button style={{ marginLeft: 'auto' }} onClick={() => location.pathname === '/myProjects' ? navigateTo('/all') : navigateTo('/myProjects')}>
+        {!isAdmin && <Toolbar.Button style={{ marginLeft: 'auto' }} onClick={() => location.pathname === '/myProjects' ? navigateTo('/all') : navigateTo('/myProjects')}>
           {location.pathname === '/all' ? 'My Projects' : 'All Projects'}
-        </Toolbar.Button>
+        </Toolbar.Button>}
         <Toolbar.Button style={{ marginLeft: 'auto' }} onClick={() => setOpen(true)} >
           {location.pathname === '/all' && isAdmin && <AddProject open={open} />}
         </Toolbar.Button>

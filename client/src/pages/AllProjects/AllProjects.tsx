@@ -27,12 +27,10 @@ const AllProjects = () => {
   const navigateTo = useNavigate();
   const project = useSelector((state => state.project));
 
-  // const users = useSelector((state => state.users));
+  const { isAdmin, user } = useSelector((state => state.users));
 
   const isSubmitted = project?.isSubmitted;
   let page = project?.page;
-  const [isAdmin, setIsAdmin] = useState(false)
-  const user = JSON.parse(localStorage.getItem('user'))
 
 
   const [projectId, setProjectId] = useState();

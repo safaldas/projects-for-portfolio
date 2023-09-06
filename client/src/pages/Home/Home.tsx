@@ -10,7 +10,7 @@ import { useMutation } from "@tanstack/react-query";
 import { StyledLoader } from "@phork/phorkit";
 import axiosInstance from "../../util/axios-instance";
 
-import { setUser } from '../../store/slices/users.slice';
+import { setIsAdmin, setUser } from '../../store/slices/users.slice';
 
 
 const FormDemo = () => {
@@ -34,8 +34,8 @@ const FormDemo = () => {
   } = useMutation(Login, {
     onError: (err) => console.log("The error", err),
     onSuccess: (data) => {
-      localStorage.setItem("user", JSON.stringify(data));
       dispatch(setUser(data))
+      dispatch(setIsAdmin(data?.role === 'ADMIN'))
 
 
       setState({
