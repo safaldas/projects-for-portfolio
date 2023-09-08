@@ -36,6 +36,8 @@ const FormDemo = () => {
     onSuccess: (data) => {
       dispatch(setUser(data))
       dispatch(setIsAdmin(data?.role === 'ADMIN'))
+      localStorage.setItem("user", JSON.stringify(data));
+
 
 
       setState({
